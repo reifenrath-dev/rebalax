@@ -16,6 +16,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      #########################
+      # START: Restore Caches #
+      #########################
+      - name: Restore Cargo cache
+        uses: actions/cache/restore@v4
+        id: cargo-cache-restore
+        with:
+          path: |
+            ~/.cargo/
+            ~/.cargo/registry/
+            ~/.cargo/git/
+            rebalax/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Restore gradle cache
+        uses: actions/cache/restore@v4
+        id: gradle-cache-restore
+        with:
+          path: |
+            ~/.gradle/
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Restore Android SDK/NDK cache
+        uses: actions/cache/restore@v4
+        id: android-cache-restore
+        with:
+          path: |
+            $ANDROID_HOME
+            $NDK_HOME
+          key: ${{ runner.os }}-android-${{ hashFiles('**/*.properties') }}
+      #######################
+      # END: Restore Caches #
+      #######################
+
       - name: install dependencies
         run: |
           sudo apt-get update
@@ -29,14 +63,6 @@ jobs:
 
       - name: install tauri-cli
         run: cargo install tauri-cli trunk --locked
-
-      - name: install cargo dependencies
-        run: cargo install --path .
-
-      - name: Rust cache
-        uses: swatinem/rust-cache@v2
-        with:
-          workspaces: './src-tauri -> target'
 
       - name: Setup JDK
         uses: actions/setup-java@v4
@@ -65,29 +91,6 @@ jobs:
           base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
           echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
 
-      #########################
-      # START: Restore Caches #
-      #########################
-      - name: Restore Cargo cache
-        uses: actions/cache/restore@v4
-        id: cargo-cache-restore
-        with:
-          path: |
-            ~/.cargo/
-            rebalax/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Restore gradle cache
-        uses: actions/cache/restore@v4
-        id: gradle-cache-restore
-        with:
-          path: |
-            ~/.gradle/
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-      #######################
-      # END: Restore Caches #
-      #######################
-
       - name: Build APKs
         env:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
@@ -110,8 +113,19 @@ jobs:
         with:
           path: |
             ~/.cargo/
+            ~/.cargo/registry/
+            ~/.cargo/git/
             rebalax/target/
           key: ${{ steps.cargo-cache-restore.outputs.cache-primary-key }}
+
+      - name: Create Android SDK/NDK cache
+        uses: actions/cache/save@v4
+        id: android-cache-save
+        with:
+          path: |
+            $ANDROID_HOME
+            $NDK_HOME
+          key: ${{ steps.android-cache-restore.outputs.cache-primary-key }}
         ######################
         # END: Create Caches #
         ######################
