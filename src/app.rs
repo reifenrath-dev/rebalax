@@ -126,9 +126,9 @@ pub fn App() -> impl IntoView {
     };
 
     view! {
-        <main class="container">
-            <div class="strategy-section">
-                <b class="strategy-title">Strategy:</b>
+        <main>
+            <section class="strategy">
+                <b>Strategy:</b>
                 <div class="strategy-options">
                     {StrategyState::iter().map(|stra| view! {
                         <input
@@ -140,15 +140,15 @@ pub fn App() -> impl IntoView {
                             on:change=move |_| set_strategy.set(stra)
                         />
                         <label for={ format!("strategy-{}", stra) }>
-                            {stra.to_string()}
+                            {if stra == StrategyState::BuySell {"Buy & Sell".to_string()} else {stra.to_string()}}
                         </label>
                     }).collect_view()}
                 </div>
-            </div>
+            </section>
 
             <table>
                 <tr>
-                    <th>Name</th>
+                    <th></th>
                     <th>Position</th>
                     <th>%</th>
                 </tr>
@@ -178,7 +178,7 @@ pub fn App() -> impl IntoView {
                                         id={ format!("{}-position-input", position.id) }
                                         placeholder="..."
                                         type="number"
-                                        value={position.current_position.to_string()}
+                                        value={if position.current_position.is_zero() { "".to_string() } else {position.current_position.round_dp(0).to_string()}}
                                         on:input={ move |ev| {
                                             let mut new_positions = positions.get().rows;
                                             new_positions[position.id].current_position = event_target_value(&ev).parse::<Decimal>().unwrap();
@@ -186,12 +186,13 @@ pub fn App() -> impl IntoView {
                                         }
                                     />
                                 </td>
-                                <td class="number"><div class="number">{ move || format!("{}", (allocation(position.current_position) * dec!(100)).round_dp(2).to_string()) }</div></td>
+                                <td class="number"><div class="number">{ move || format!("{}", (allocation(positions.get().rows[position.id].current_position) * dec!(100)).round_dp(2).to_string()) }</div></td>
                             </tr>
                             <tr class="target">
                                 <td>Target</td>
                                 <td class="number">
-                                    <div class="number">{ move ||
+                                    <div class="number">
+                                    { move ||
                                         target_positions()[position.id].round_dp(0).to_string()
                                     }
                                     { move ||
@@ -204,7 +205,8 @@ pub fn App() -> impl IntoView {
                                         id={ format!("{}-target-input", position.id) }
                                         placeholder="..."
                                         type="number"
-                                        value={(position.target_allocation * dec!(100)).to_string()}
+                                        class="percentage"
+                                        value={if position.target_allocation.is_zero() { "".to_string() } else {(position.target_allocation * dec!(100)).round_dp(2).to_string()}}
                                         on:input={ move |ev| {
                                             let mut new_positions = positions.get().rows;
                                             new_positions[position.id].target_allocation = event_target_value(&ev).parse::<Decimal>().unwrap()  / dec!(100);
@@ -217,7 +219,7 @@ pub fn App() -> impl IntoView {
                 />
             </table>
 
-            <div class="add-remove-section">
+            <section class="add-remove">
                 <button class="minus" on:click={move |_| {
                     set_positions.update(|value| {
                         value.rows.pop();
@@ -232,36 +234,44 @@ pub fn App() -> impl IntoView {
                         current_position: dec!(0),
                         target_allocation: dec!(0),}]).collect()})
                 }}>+</button>
-            </div>
+            </section>
 
             <table>
                 <tr>
-                    <td colspan="3" class="title">Total</td>
+                    <td colspan="3" class="title total">Total</td>
                 </tr>
                 <tr class="current">
                     <td>Current</td>
                     <td class="number"><div class="number">{ move || position_total().to_string() }</div></td>
-                    <td class="number">{ move || format!("{}",
-                        ((positions.get().rows.iter().cloned()
-                            .map(|position| allocation(position.current_position))
-                            .sum::<Decimal>()) * dec!(100))
-                        .round_dp(2))
-                    }</td>
+                    <td class="number">
+                        <div class="number">
+                            { move || format!("{}",
+                                ((positions.get().rows.iter().cloned()
+                                    .map(|position| allocation(position.current_position))
+                                    .sum::<Decimal>()) * dec!(100))
+                                .round_dp(2))
+                            }
+                        </div>
+                    </td>
                 </tr>
-                <tr class="target">
+                <tr class="target last">
                     <td>Target</td>
-                    <td class="number"><div class="number">{ move || format!("{}",
-                        (target_positions().iter().cloned().sum::<Decimal>()).round_dp(0).to_string())
+                    <td class="number"><div class="number">{ move ||
+                        target_positions().iter().cloned().sum::<Decimal>().round_dp(0).to_string()
                     }
                     { move ||
                         get_diff_string(((position_total() - (target_positions().iter().cloned().sum::<Decimal>())) * dec!(-1)).round_dp(0))
                     }</div></td>
-                    <td class="number">{ move || format!("{}",
-                        (positions.get().rows.iter().cloned()
-                            .map(|position| position.target_allocation)
-                            .sum::<Decimal>())
-                        * dec!(100).round_dp(2))
-                    }</td>
+                    <td class="number">
+                        <div class="number">
+                            { move || format!("{}",
+                            (positions.get().rows.iter().cloned()
+                                .map(|position| position.target_allocation)
+                                .sum::<Decimal>())
+                            * dec!(100).round_dp(2))
+                            }
+                        </div>
+                    </td>
                 </tr>
             </table>
         </main>
