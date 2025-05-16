@@ -1,5 +1,7 @@
 # Rebalance + Relax = Rebalax
 
+[![publish-android](https://github.com/reifenrath-dev/rebalax/actions/workflows/android.yml/badge.svg)](https://github.com/reifenrath-dev/rebalax/actions/workflows/android.yml)
+
 ## Setup
 
 Make sure tauri-cli and trunk-cli are installed.
