@@ -19,18 +19,7 @@ jobs:
       #########################
       # START: Restore Caches #
       #########################
-      - name: Restore Cargo cache
-        uses: actions/cache/restore@v4
-        id: cargo-cache-restore
-        with:
-          path: |
-            ~/.cargo/
-            ~/.cargo/registry/
-            ~/.cargo/git/
-            rebalax/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Restore gradle cache
+      - name: 'Restore Cache: Gradle'
         uses: actions/cache/restore@v4
         id: gradle-cache-restore
         with:
@@ -38,7 +27,7 @@ jobs:
             ~/.gradle/
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-      - name: Restore Android SDK/NDK cache
+      - name: 'Restore Cache: Android SDK/NDK'
         uses: actions/cache/restore@v4
         id: android-cache-restore
         with:
@@ -50,40 +39,52 @@ jobs:
       # END: Restore Caches #
       #######################
 
-      - name: install dependencies
+      - name: 'Install: Linux Dependencies'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: install Rust stable
+      - name: 'Install: Rust Stable'
         uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
 
-      - name: add wasm32 target
+      - name: 'Cache: Cargo'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 'Add: Wasm32 Target'
         run: rustup target add wasm32-unknown-unknown
 
-      - name: install tauri-cli
+      - name: 'Install: Tauri-CLI and Trunk'
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
         run: cargo install tauri-cli trunk --locked
 
-      - name: Setup JDK
+      - name: 'Setup: JDK'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
+      - name: 'Setup: Android SDK'
         uses: android-actions/setup-android@v3
 
-      - name: setup Android NDK
+      - name: 'Setup: Android NDK'
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r26d
           link-to-sdk: true
 
-      - name: install Android targets
+      - name: 'Install: Android Targets'
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
-      - name: setup Android signing
+      - name: 'Setup: Android Signing'
         run: |
           cd src-tauri/gen/android
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
@@ -91,7 +92,7 @@ jobs:
           base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
           echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
 
-      - name: Build APKs
+      - name: 'Build: APKs'
         env:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: cargo tauri android build --apk --split-per-abi
@@ -99,7 +100,7 @@ jobs:
       ########################
       # START: Create Caches #
       ########################
-      - name: Create gradle cache
+      - name: 'Create Cache: Gradle'
         uses: actions/cache/save@v4
         id: gradle-cache-create
         with:
@@ -107,18 +108,7 @@ jobs:
             ~/.gradle/
           key: ${{ steps.gradle-cache-restore.outputs.cache-primary-key }}
 
-      - name: Create cargo cache
-        uses: actions/cache/save@v4
-        id: cargo-cache-save
-        with:
-          path: |
-            ~/.cargo/
-            ~/.cargo/registry/
-            ~/.cargo/git/
-            rebalax/target/
-          key: ${{ steps.cargo-cache-restore.outputs.cache-primary-key }}
-
-      - name: Create Android SDK/NDK cache
+      - name: 'Create Cache: Android SDK & NDK'
         uses: actions/cache/save@v4
         id: android-cache-save
         with:
@@ -126,9 +116,9 @@ jobs:
             $ANDROID_HOME
             $NDK_HOME
           key: ${{ steps.android-cache-restore.outputs.cache-primary-key }}
-        ######################
-        # END: Create Caches #
-        ######################
+      ######################
+      # END: Create Caches #
+      ######################
 
       - name: Create Release
         id: create_release
