@@ -143,6 +143,9 @@ input[type=radio] + label {
   cursor: pointer;
   display: inline-block;
 }
+input[type=radio]#strategy-BuySell + label{
+  min-width: 75px;
+}
 input[type=radio]:checked + label {
   background-color: var(--white);
   color: var(--black);
