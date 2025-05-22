@@ -1,16 +1,17 @@
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
+use reactive_stores::Store;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
-use reactive_stores::{Store};
+use uuid::Uuid;
 
 #[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Data {
-    #[store(key: usize = |row| row.id.clone())]
+    #[store(key: Uuid = |row| row.id.clone())]
     rows: Vec<AssetInputState>,
 }
 
@@ -24,7 +25,7 @@ impl Default for Data {
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 struct AssetInputState {
-    id: usize,
+    id: Uuid,
     name: String,
     current_position: Decimal,
     target_allocation: Decimal,
@@ -32,6 +33,7 @@ struct AssetInputState {
 
 #[derive(Clone)]
 struct UnbalancedAsset {
+    id: Uuid,
     allocation: Decimal,
     target_allocation: Decimal,
     position: Decimal,
@@ -50,6 +52,12 @@ impl Default for StrategyState  {
     }
 }
 
+#[derive(Clone)]
+struct TargetAsset {
+    id: Uuid,
+    value: Decimal,
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     let (strategy, set_strategy, _) = use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
@@ -59,12 +67,12 @@ pub fn App() -> impl IntoView {
     if positions.get().rows.len() == 0 {
         set_positions.set(Data {
             rows: vec![AssetInputState {
-                id: 0,
+                id: Uuid::now_v7(),
                 name: "Position 1".to_string(),
                 current_position: dec!(0),
                 target_allocation: dec!(0),
             }, AssetInputState {
-                id: 1,
+                id: Uuid::now_v7(),
                 name: "Position 2".to_string(),
                 current_position: dec!(0),
                 target_allocation: dec!(0),
@@ -79,7 +87,7 @@ pub fn App() -> impl IntoView {
     let target_positions = move || {
         if positions.get().rows.iter().cloned().map(|x| x.target_allocation).sum::<Decimal>() != dec!(1)
         {
-            return positions.get().rows.iter().cloned().map(|_| dec!(0)).collect();
+            return positions.get().rows.iter().cloned().map(|x| TargetAsset{id: x.id, value: dec!(0)}).collect::<Vec<TargetAsset>>();
         }
 
         return match strategy.get() {
@@ -89,6 +97,7 @@ pub fn App() -> impl IntoView {
 
                 let assets: Vec<UnbalancedAsset> = positions.get().rows.iter().cloned()
                     .map(|x| UnbalancedAsset {
+                        id: x.id,
                         allocation: allocation(x.current_position),
                         target_allocation: x.target_allocation,
                         position: x.current_position,
@@ -103,12 +112,18 @@ pub fn App() -> impl IntoView {
                 let factor = highest_deviation.position / highest_deviation.target_allocation;
 
                 assets.iter().cloned()
-                    .map(|asset| asset.target_allocation * factor)
-                    .collect::<Vec<Decimal>>()
+                    .map(|asset| TargetAsset { id: asset.id, value: asset.target_allocation * factor })
+                    .collect::<Vec<TargetAsset>>()
             }
             StrategyState::BuySell => {
                 let total = position_total();
-                positions.get().rows.iter().cloned().map(|position| position.target_allocation * total).collect::<Vec<Decimal>>()
+                positions.get().rows.iter().cloned()
+                    .map(|position|
+                        TargetAsset {
+                            id: position.id,
+                            value: position.target_allocation * total
+                        })
+                    .collect()
             }
         };
     };
@@ -118,9 +133,9 @@ pub fn App() -> impl IntoView {
             view!{ <span class="zero">{"".to_string()}</span> }
         } else {
             if diff.is_sign_positive() {
-                view!{ <span class="positive">{format!(" (+{})", diff)}</span> }
+                view!{ <span class="positive">{format!(" +{}", diff)}</span> }
             } else {
-                view!{ <span class="negative">{format!(" ({})", diff)}</span> }
+                view!{ <span class="negative">{format!(" {}", diff)}</span> }
             }
         }
     };
@@ -128,7 +143,7 @@ pub fn App() -> impl IntoView {
     view! {
         <main>
             <section class="strategy">
-                <b>Strategy:</b>
+                <b>Strategy</b>
                 <div class="strategy-options">
                     {StrategyState::iter().map(|stra| view! {
                         <input
@@ -147,12 +162,6 @@ pub fn App() -> impl IntoView {
             </section>
 
             <table>
-                <tr>
-                    <th></th>
-                    <th>Position</th>
-                    <th>%</th>
-                </tr>
-
                 <For
                     each=move || positions.get().rows.clone()
                     key=|row| row.id.clone()
@@ -165,10 +174,19 @@ pub fn App() -> impl IntoView {
                                         value={position.name}
                                         on:input={ move |ev| {
                                             let mut new_positions = positions.get().rows;
-                                            new_positions[position.id].name = event_target_value(&ev).parse().unwrap();
+                                            new_positions.iter_mut().find(|x| x.id == position.id).unwrap().name = event_target_value(&ev).parse().unwrap();
                                             set_positions.set( Data { rows: new_positions })}
                                         }
                                     />
+                                    <button
+                                        class="remove-position"
+                                        on:click={move |_| {
+                                            set_positions.update(|value| {
+                                                let ix = value.rows.iter().position(|x| x.id == position.id).unwrap();
+                                                value.rows.remove(ix);
+                                            })
+                                        }}
+                                    >-</button>
                                 </td>
                             </tr>
                             <tr class="current">
@@ -181,22 +199,22 @@ pub fn App() -> impl IntoView {
                                         value={if position.current_position.is_zero() { "".to_string() } else {position.current_position.round_dp(0).to_string()}}
                                         on:input={ move |ev| {
                                             let mut new_positions = positions.get().rows;
-                                            new_positions[position.id].current_position = event_target_value(&ev).parse::<Decimal>().unwrap();
+                                            new_positions.iter_mut().find(|x| x.id == position.id).unwrap().current_position = event_target_value(&ev).parse::<Decimal>().unwrap();
                                             set_positions.set( Data { rows: new_positions })}
                                         }
                                     />
                                 </td>
-                                <td class="number"><div class="number">{ move || format!("{}", (allocation(positions.get().rows[position.id].current_position) * dec!(100)).round_dp(2).to_string()) }</div></td>
+                                <td class="number"><div class="number">{ move || format!("{}", (allocation(positions.get().rows.iter().find(|x| x.id == position.id).unwrap().current_position) * dec!(100)).round_dp(2).to_string()) }</div></td>
                             </tr>
                             <tr class="target">
                                 <td>Target</td>
                                 <td class="number">
                                     <div class="number">
                                     { move ||
-                                        target_positions()[position.id].round_dp(0).to_string()
+                                        target_positions().iter().find(|x| x.id == position.id).unwrap().value.round_dp(0).to_string()
                                     }
                                     { move ||
-                                        get_diff_string((target_positions()[position.id] - positions.get().rows[position.id].current_position).round_dp(0))
+                                        get_diff_string((target_positions().iter().find(|x| x.id == position.id).unwrap().value - positions.get().rows.iter().find(|x| x.id == position.id).unwrap().current_position).round_dp(0))
                                     }
                                     </div>
                                 </td>
@@ -209,7 +227,7 @@ pub fn App() -> impl IntoView {
                                         value={if position.target_allocation.is_zero() { "".to_string() } else {(position.target_allocation * dec!(100)).round_dp(2).to_string()}}
                                         on:input={ move |ev| {
                                             let mut new_positions = positions.get().rows;
-                                            new_positions[position.id].target_allocation = event_target_value(&ev).parse::<Decimal>().unwrap()  / dec!(100);
+                                            new_positions.iter_mut().find(|x| x.id == position.id).unwrap().target_allocation = event_target_value(&ev).parse::<Decimal>().unwrap()  / dec!(100);
                                             set_positions.set(Data {rows: new_positions})}
                                         }
                                     />
@@ -220,60 +238,41 @@ pub fn App() -> impl IntoView {
             </table>
 
             <section class="add-remove">
-                <button class="minus" on:click={move |_| {
-                    set_positions.update(|value| {
-                        value.rows.pop();
-                        *value = value.clone()
-                    })
-                }}>-</button>
                 <button class="plus" on:click={move |_| {
-                    let new_id = positions.get().rows.len();
-                    set_positions.update(|value| *value = Data { rows: value.rows.iter().cloned().chain([AssetInputState {
-                        id: new_id,
-                        name: format!("Position {}", new_id+1),
-                        current_position: dec!(0),
-                        target_allocation: dec!(0),}]).collect()})
-                }}>+</button>
+                    let len = positions.get().rows.len();
+                    set_positions.update(|value| *value = Data {
+                        rows: value.rows.iter().cloned().chain([AssetInputState {
+                                id: Uuid::now_v7(),
+                                name: format!("Position {}", len + 1),
+                                current_position: dec!(0),
+                                target_allocation: dec!(0),}])
+                            .collect()})
+                        }}>
+                +</button>
             </section>
-
-            <table>
-                <tr>
-                    <td colspan="3" class="title total">Total</td>
-                </tr>
-                <tr class="current">
-                    <td>Current</td>
-                    <td class="number"><div class="number">{ move || position_total().to_string() }</div></td>
-                    <td class="number">
-                        <div class="number">
-                            { move || format!("{}",
-                                ((positions.get().rows.iter().cloned()
-                                    .map(|position| allocation(position.current_position))
-                                    .sum::<Decimal>()) * dec!(100))
-                                .round_dp(2))
-                            }
-                        </div>
-                    </td>
-                </tr>
-                <tr class="target last">
-                    <td>Target</td>
-                    <td class="number"><div class="number">{ move ||
-                        target_positions().iter().cloned().sum::<Decimal>().round_dp(0).to_string()
+        
+            <section class="total">
+                <b>Total</b>
+                <span>
+                {move || {
+                    if strategy.get() == StrategyState::BuySell {
+                        view! { 
+                            {position_total().to_string()}
+                            {get_diff_string(dec!(0))}
+                            {"".to_string()}
+                            {"".to_string()}
+                        }
+                    } else {
+                        view! {
+                            {position_total().to_string()}
+                            {get_diff_string(((position_total() - (target_positions().iter().cloned().map(|x| x.value).sum::<Decimal>())) * dec!(-1)).round_dp(0))}
+                            {" = ".to_string()}
+                            {target_positions().iter().cloned().map(|x| x.value).sum::<Decimal>().round_dp(0).to_string()}
+                        }
                     }
-                    { move ||
-                        get_diff_string(((position_total() - (target_positions().iter().cloned().sum::<Decimal>())) * dec!(-1)).round_dp(0))
-                    }</div></td>
-                    <td class="number">
-                        <div class="number">
-                            { move || format!("{}",
-                            (positions.get().rows.iter().cloned()
-                                .map(|position| position.target_allocation)
-                                .sum::<Decimal>())
-                            * dec!(100).round_dp(2))
-                            }
-                        </div>
-                    </td>
-                </tr>
-            </table>
+                }}
+                </span>
+            </section>
         </main>
     }
 }

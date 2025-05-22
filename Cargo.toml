@@ -17,6 +17,8 @@ codee = { version = "0.3", features = ["json_serde", "base64", "prost"] }
 strum = "0.27.1"
 strum_macros = "0.27.1"
 reactive_stores = "0.2.2"
+uuid = { version = "1.16", features = ["js", "v4", "v7", "serde"] }
+
 
 [workspace]
 members = ["src-tauri"]

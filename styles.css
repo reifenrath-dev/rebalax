@@ -1,10 +1,12 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
-  --white: #f6f6f6;;
+  --white: #f6f6f6;
   --black: #000;
+  --almost-black: #111;
+  --main: #f47c3c;
 
   color: var(--white);
   background-color: var(--black);
@@ -33,21 +35,39 @@ section {
 }
 
 section.strategy {
-  border-bottom: 1px solid var(--white);
+  /*border-bottom: 1px solid var(--white);*/
   padding: 5px 5px 5px 10px;
   align-items: center;
   gap: 1rem;
   width: calc(100% - 15px);
 }
 
+section.total {
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+section.total b + span{
+  font-size: 1.2em;
+}
+
+section.total div {
+  display: flex;
+  gap: 1rem;
+}
+
 section.add-remove {
-  border-top: 1px solid var(--white);
+  /*border-top: 1px solid var(--white);*/
   flex-direction: row;
   justify-content: center;
   text-align: center;
 }
+button.remove-position {
+  border-radius: 0 8px 0 0;
+}
 
-.minus, .plus {
+.plus {
   flex-grow: 1;
 }
 
@@ -88,20 +108,24 @@ div.number {
 tr {
   padding: 5px;
 }
-tr.target {
-  background-color: #333;
-}
 tr.target.last {
-  border-bottom: 1px solid var(--white);
   padding-left: 10px;
-}
-tr.current {
-  background-color: #222;
 }
 
 td:nth-child(3) {
-  width: 90px;
+  width: 100px;
   text-align: right;
+}
+td:nth-child(3) {
+  position: relative;
+}
+td:nth-child(3)::after {
+  content: '%';
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 td:nth-child(2) {
   text-align: right;
@@ -111,8 +135,10 @@ td:nth-child(1):not(.title) {
   text-align: left;
 }
 td.title {
-  border-top: 1px solid var(--white);
   font-weight: 600;
+}
+td.title input {
+  border-radius: 8px 0 0 0;
 }
 td.title.total {
   text-align: left;
@@ -131,7 +157,8 @@ input[type=number] {
   width: 65px;
 }
 input[type=number].percentage {
-  width: 55px;
+  width: 45px;
+  padding-right: 20px;
 }
 input[type=radio]{
   position: absolute;
@@ -147,12 +174,12 @@ input[type=radio]#strategy-BuySell + label{
   min-width: 75px;
 }
 input[type=radio]:checked + label {
-  background-color: var(--white);
+  background-color: var(--main);
   color: var(--black);
 }
 input[type=radio]:hover + label,
 button:hover {
-  border-color: var(--white);
+  border-color: var(--main);
 }
 input[type=radio]:active + label {
   background-color: var(--white);
@@ -167,7 +194,7 @@ input[type=radio] + label {
   font-weight: 500;
   font-family: inherit;
   color: var(--white);
-  background-color: var(--black);
+  background-color: var(--almost-black);
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   outline: none;
@@ -176,7 +203,11 @@ input[type=radio] + label {
   appearance: none;
 }
 input[type=text] {
-  width: calc(100% - 22px);
+  border-radius: 8px 8px 0 0;
+  width: calc(100% - 68px);
   padding: 0.6em 10px;
   margin: 0;
+}
+button {
+  border-radius: 0 0 8px 8px;
 }
