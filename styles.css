@@ -7,6 +7,8 @@
   --black: #000;
   --almost-black: #111;
   --main: #f47c3c;
+  --green: #00ff00;
+  --red: #ff0000;
 
   color: var(--white);
   background-color: var(--black);
@@ -16,18 +18,14 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  --padding-left: 10px;
 }
-
-body {
-  margin: 0;
-}
+body { margin: 0; }
 
 main {
-  margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: center;
 }
 
 section {
@@ -35,8 +33,7 @@ section {
 }
 
 section.strategy {
-  /*border-bottom: 1px solid var(--white);*/
-  padding: 5px 5px 5px 10px;
+  padding: 5px 5px 5px var(--padding-left);
   align-items: center;
   gap: 1rem;
   width: calc(100% - 15px);
@@ -45,7 +42,7 @@ section.strategy {
 section.total {
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: var(--padding-left);
 }
 
 section.total b + span{
@@ -65,10 +62,7 @@ section.add-remove {
 }
 button.remove-position {
   border-radius: 0 8px 0 0;
-}
-
-.plus {
-  flex-grow: 1;
+  padding: 0.6rem 0.6rem;
 }
 
 .strategy-options {
@@ -84,17 +78,13 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
-}
 
 table {
   border-collapse: collapse;
 }
 
 th {
-  padding: 0 10px;
+  padding: 0 var(--padding-left);
   text-align: right;
 }
 th:first-child {
@@ -105,18 +95,9 @@ div.number {
   padding: 0.6em 1.2em;
 }
 
-tr {
-  padding: 5px;
-}
-tr.target.last {
-  padding-left: 10px;
-}
-
 td:nth-child(3) {
-  width: 100px;
+  width: 85px;
   text-align: right;
-}
-td:nth-child(3) {
   position: relative;
 }
 td:nth-child(3)::after {
@@ -131,7 +112,7 @@ td:nth-child(2) {
   text-align: right;
 }
 td:nth-child(1):not(.title) {
-  padding-left: 10px;
+  padding-left: var(--padding-left);
   text-align: left;
 }
 td.title {
@@ -142,19 +123,24 @@ td.title input {
 }
 td.title.total {
   text-align: left;
-  padding-left: 10px;
+  padding-left: var(--padding-left);
 }
 
 .positive{
-  color: green;
+  color: var(--green);
 }
 .negative{
-  color: red;
+  color: var(--red);
 }
 
 input[type=number] {
+  -moz-appearance: textfield; /* Firefox */
   text-align: right;
   width: 65px;
+}
+input[type=number]:focus,
+input[type=text]:focus {
+  border-color: var(--main);
 }
 input[type=number].percentage {
   width: 45px;
@@ -169,20 +155,19 @@ input[type=radio] + label {
   width: 100%;
   cursor: pointer;
   display: inline-block;
+  text-align: center;
 }
 input[type=radio]#strategy-BuySell + label{
   min-width: 75px;
 }
-input[type=radio]:checked + label {
+input[type=radio]:checked + label,
+input[type=radio]:active + label {
   background-color: var(--main);
   color: var(--black);
 }
 input[type=radio]:hover + label,
 button:hover {
   border-color: var(--main);
-}
-input[type=radio]:active + label {
-  background-color: var(--white);
 }
 input,
 button,
@@ -196,18 +181,26 @@ input[type=radio] + label {
   color: var(--white);
   background-color: var(--almost-black);
   transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
   outline: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 }
-input[type=text] {
-  border-radius: 8px 8px 0 0;
-  width: calc(100% - 68px);
-  padding: 0.6em 10px;
+input[type=text].title-input {
+  border-radius: 8px 0 0 0;
+  flex-grow: 1;
+  padding: 0.6em calc(var(--padding-left) - 1px);
   margin: 0;
 }
-button {
+button.add-position {
   border-radius: 0 0 8px 8px;
+  flex-grow: 1;
+  padding: 4px 0 0;
+}
+svg {
+  color: var(--white);
+}
+.title-input-container {
+  display: flex;
+  flex-direction: row;
 }

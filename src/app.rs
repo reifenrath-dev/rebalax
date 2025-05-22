@@ -169,24 +169,29 @@ pub fn App() -> impl IntoView {
                         view!{
                             <tr>
                                 <td colspan=3 class="title">
-                                    <input
-                                        type="text"
-                                        value={position.name}
-                                        on:input={ move |ev| {
-                                            let mut new_positions = positions.get().rows;
-                                            new_positions.iter_mut().find(|x| x.id == position.id).unwrap().name = event_target_value(&ev).parse().unwrap();
-                                            set_positions.set( Data { rows: new_positions })}
-                                        }
-                                    />
-                                    <button
-                                        class="remove-position"
-                                        on:click={move |_| {
-                                            set_positions.update(|value| {
-                                                let ix = value.rows.iter().position(|x| x.id == position.id).unwrap();
-                                                value.rows.remove(ix);
-                                            })
-                                        }}
-                                    >-</button>
+                                    <div class="title-input-container">
+                                        <input
+                                            class="title-input"
+                                            type="text"
+                                            value={position.name}
+                                            on:input={ move |ev| {
+                                                let mut new_positions = positions.get().rows;
+                                                new_positions.iter_mut().find(|x| x.id == position.id).unwrap().name = event_target_value(&ev).parse().unwrap();
+                                                set_positions.set( Data { rows: new_positions })}
+                                            }
+                                        />
+                                        <button
+                                            class="remove-position"
+                                            on:click={move |_| {
+                                                set_positions.update(|value| {
+                                                    let ix = value.rows.iter().position(|x| x.id == position.id).unwrap();
+                                                    value.rows.remove(ix);
+                                                })
+                                            }}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="current">
@@ -238,7 +243,7 @@ pub fn App() -> impl IntoView {
             </table>
 
             <section class="add-remove">
-                <button class="plus" on:click={move |_| {
+                <button class="add-position" on:click={move |_| {
                     let len = positions.get().rows.len();
                     set_positions.update(|value| *value = Data {
                         rows: value.rows.iter().cloned().chain([AssetInputState {
@@ -248,7 +253,8 @@ pub fn App() -> impl IntoView {
                                 target_allocation: dec!(0),}])
                             .collect()})
                         }}>
-                +</button>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>        
+                </button>
             </section>
         
             <section class="total">
