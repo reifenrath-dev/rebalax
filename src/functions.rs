@@ -1,7 +1,7 @@
+use crate::types::{AssetInputState, StrategyState, TargetAsset};
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use uuid::Uuid;
-use crate::types::{AssetInputState, StrategyState, TargetAsset};
 
 #[derive(Clone)]
 struct UnbalancedAsset {
@@ -11,13 +11,16 @@ struct UnbalancedAsset {
     position: Decimal,
 }
 
-pub fn get_target_assets(strategy: StrategyState, positions: Vec<AssetInputState>) -> Vec<TargetAsset> {
+pub fn get_target_assets(
+    strategy: StrategyState,
+    positions: Vec<AssetInputState>,
+) -> Vec<TargetAsset> {
     let position_total = positions
         .iter()
         .cloned()
         .map(|x| x.current_position)
         .sum::<Decimal>();
-    
+
     match strategy {
         z @ StrategyState::Buy | z @ StrategyState::Sell => {
             let is_buy = z == StrategyState::Buy;
@@ -55,15 +58,13 @@ pub fn get_target_assets(strategy: StrategyState, positions: Vec<AssetInputState
                 })
                 .collect::<Vec<TargetAsset>>()
         }
-        StrategyState::BuySell => {
-            positions
-                .iter()
-                .cloned()
-                .map(|position| TargetAsset {
-                    id: position.id,
-                    value: position.target_allocation * position_total,
-                })
-                .collect()
-        }
+        StrategyState::BuySell => positions
+            .iter()
+            .cloned()
+            .map(|position| TargetAsset {
+                id: position.id,
+                value: position.target_allocation * position_total,
+            })
+            .collect(),
     }
 }

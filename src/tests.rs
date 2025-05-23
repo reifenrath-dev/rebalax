@@ -31,13 +31,10 @@ mod tests {
                 target_allocation: dec!(0.1),
             },
         ];
-        
+
         // Act
-        let result = get_target_assets(
-            StrategyState::Buy,
-            positions
-        );
-        
+        let result = get_target_assets(StrategyState::Buy, positions);
+
         // Assert
         assert_eq!(result.len(), 3);
         assert_eq!(result[0].id, first_id);
@@ -74,13 +71,10 @@ mod tests {
                 target_allocation: dec!(0.1),
             },
         ];
-        
+
         // Act
-        let result = get_target_assets(
-            StrategyState::Sell,
-            positions
-        );
-        
+        let result = get_target_assets(StrategyState::Sell, positions);
+
         // Assert
         assert_eq!(result.len(), 3);
         assert_eq!(result[0].id, first_id);
@@ -117,13 +111,10 @@ mod tests {
                 target_allocation: dec!(0.1),
             },
         ];
-        
+
         // Act
-        let result = get_target_assets(
-            StrategyState::BuySell,
-            positions
-        );
-        
+        let result = get_target_assets(StrategyState::BuySell, positions);
+
         // Assert
         assert_eq!(result.len(), 3);
         assert_eq!(result[0].id, first_id);

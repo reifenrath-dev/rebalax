@@ -1,3 +1,5 @@
+use crate::functions;
+use crate::types::{AssetInputState, Data, StrategyState, TargetAsset};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
@@ -5,15 +7,15 @@ use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use strum::IntoEnumIterator;
 use uuid::Uuid;
-use crate::functions;
-use crate::types::{AssetInputState, Data, StrategyState, TargetAsset};
 
 #[component]
 pub fn App() -> impl IntoView {
     let (strategy, set_strategy, _) =
         use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
 
-    let (positions, set_positions, _) = use_local_storage::<Data, JsonSerdeCodec>("asset-state");
+    let (positions, set_positions, _) =
+        use_local_storage::<Data, JsonSerdeCodec>("asset-state");
+    
     if positions.get().rows.len() == 0 {
         set_positions.set(Data {
             rows: vec![

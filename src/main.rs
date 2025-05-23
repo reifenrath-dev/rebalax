@@ -1,11 +1,11 @@
 mod app;
 mod functions;
-mod types;
 mod tests;
+mod types;
 
 use app::*;
 use leptos::prelude::*;
-use leptos_use::docs::{demo_or_body};
+use leptos_use::docs::demo_or_body;
 
 fn main() {
     _ = console_log::init_with_level(log::Level::Debug);
