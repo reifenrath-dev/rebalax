@@ -5,8 +5,8 @@
   font-weight: 400;
   --white: #f6f6f6;
   --black: #000;
-  --almost-black: #111;
-  --main: #f47c3c;
+  --almost-black: #222;
+  --main: #00ff00;
   --green: #00ff00;
   --red: #ff0000;
 
@@ -19,6 +19,7 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   --padding-left: 10px;
+  --border-radius: 8px;
 }
 body { margin: 0; }
 
@@ -36,7 +37,6 @@ section.strategy {
   padding: 5px 5px 5px var(--padding-left);
   align-items: center;
   gap: 1rem;
-  width: calc(100% - 15px);
 }
 
 section.total {
@@ -45,6 +45,7 @@ section.total {
   padding: var(--padding-left);
 }
 
+section.total b,
 section.total b + span{
   font-size: 1.2em;
 }
@@ -55,7 +56,6 @@ section.total div {
 }
 
 section.add-remove {
-  /*border-top: 1px solid var(--white);*/
   flex-direction: row;
   justify-content: center;
   text-align: center;
@@ -123,19 +123,15 @@ td.title {
   font-weight: 600;
 }
 td.title input {
-  border-radius: 8px 0 0 0;
+  border-radius: var(--border-radius) 0 0 0;
 }
 td.title.total {
   text-align: left;
   padding-left: var(--padding-left);
 }
 
-.positive{
-  color: var(--green);
-}
-.negative{
-  color: var(--red);
-}
+.positive{ color: var(--green); }
+.negative{ color: var(--red); }
 
 input[type=number] {
   -moz-appearance: textfield; /* Firefox */
@@ -177,11 +173,10 @@ button:hover {
 input,
 button,
 input[type=radio] + label {
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   border: 1px solid transparent;
   padding: 0.6em;
   font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
   color: var(--white);
   background-color: var(--almost-black);
@@ -192,13 +187,13 @@ input[type=radio] + label {
   appearance: none;
 }
 input[type=text].title-input {
-  border-radius: 8px 0 0 0;
+  border-radius: var(--border-radius) 0 0 0;
   flex-grow: 1;
   padding: 0.6em calc(var(--padding-left) - 1px);
   margin: 0;
 }
 button.add-position {
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
   flex-grow: 1;
   padding: 4px 0 0;
 }
