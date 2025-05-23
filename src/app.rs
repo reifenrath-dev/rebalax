@@ -1,60 +1,12 @@
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
-use reactive_stores::Store;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
-use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter, EnumString};
 use uuid::Uuid;
-
-#[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct Data {
-    #[store(key: Uuid = |row| row.id.clone())]
-    rows: Vec<AssetInputState>,
-}
-
-impl Default for Data {
-    fn default() -> Self {
-        Self { rows: vec![] }
-    }
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
-struct AssetInputState {
-    id: Uuid,
-    name: String,
-    current_position: Decimal,
-    target_allocation: Decimal,
-}
-
-#[derive(Clone)]
-struct UnbalancedAsset {
-    id: Uuid,
-    allocation: Decimal,
-    target_allocation: Decimal,
-    position: Decimal,
-}
-
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, EnumString, Display, EnumIter)]
-enum StrategyState {
-    Buy,
-    BuySell,
-    Sell,
-}
-
-impl Default for StrategyState {
-    fn default() -> Self {
-        StrategyState::Buy
-    }
-}
-
-#[derive(Clone)]
-struct TargetAsset {
-    id: Uuid,
-    value: Decimal,
-}
+use crate::functions;
+use crate::types::{AssetInputState, Data, StrategyState, TargetAsset};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -120,60 +72,7 @@ pub fn App() -> impl IntoView {
                 })
                 .collect::<Vec<TargetAsset>>();
         }
-
-        return match strategy.get() {
-            z @ StrategyState::Buy | z @ StrategyState::Sell => {
-                let is_buy = z == StrategyState::Buy;
-                let polarity = if is_buy { dec!(-1) } else { dec!(1) };
-
-                let assets: Vec<UnbalancedAsset> = positions
-                    .get()
-                    .rows
-                    .iter()
-                    .cloned()
-                    .map(|x| UnbalancedAsset {
-                        id: x.id,
-                        allocation: allocation(x.current_position),
-                        target_allocation: x.target_allocation,
-                        position: x.current_position,
-                    })
-                    .collect();
-
-                let highest_deviation = assets
-                    .iter()
-                    .cloned()
-                    .filter(|asset| asset.target_allocation != dec!(0))
-                    .min_by_key(|asset| {
-                        (asset.allocation - asset.target_allocation) * polarity
-                            / asset.target_allocation
-                    })
-                    .unwrap();
-
-                let factor = highest_deviation.position / highest_deviation.target_allocation;
-
-                assets
-                    .iter()
-                    .cloned()
-                    .map(|asset| TargetAsset {
-                        id: asset.id,
-                        value: asset.target_allocation * factor,
-                    })
-                    .collect::<Vec<TargetAsset>>()
-            }
-            StrategyState::BuySell => {
-                let total = position_total();
-                positions
-                    .get()
-                    .rows
-                    .iter()
-                    .cloned()
-                    .map(|position| TargetAsset {
-                        id: position.id,
-                        value: position.target_allocation * total,
-                    })
-                    .collect()
-            }
-        };
+        functions::get_target_assets(strategy.get(), positions.get().rows, position_total())
     };
 
     let get_diff_string = |diff: Decimal| {

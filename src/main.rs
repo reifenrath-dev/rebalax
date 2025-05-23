@@ -1,4 +1,6 @@
 mod app;
+mod functions;
+mod types;
 
 use app::*;
 use leptos::prelude::*;
@@ -8,7 +10,7 @@ fn main() {
     _ = console_log::init_with_level(log::Level::Debug);
     console_error_panic_hook::set_once();
 
-    let unmount_handle = leptos::mount::mount_to(demo_or_body(), || {
+    let unmount_handle = mount_to(demo_or_body(), || {
         view! { <App/> }
     });
 
