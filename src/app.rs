@@ -188,6 +188,18 @@ pub fn App() -> impl IntoView {
         }
     };
 
+    let get_diff_string_with_braces = |diff: Decimal| {
+        if diff.is_zero() {
+            view! { <span class="zero">{"".to_string()}</span> }
+        } else {
+            if diff.is_sign_positive() {
+                view! { <span class="positive">{format!(" (+{})", diff)}</span> }
+            } else {
+                view! { <span class="negative">{format!(" ({})", diff)}</span> }
+            }
+        }
+    };
+
     view! {
         <main>
             <section class="strategy">
@@ -336,7 +348,7 @@ pub fn App() -> impl IntoView {
                                                 .round_dp(0)
                                                 .to_string()
                                         }}
-                                        {move || get_diff_string(
+                                        {move || get_diff_string_with_braces(
                                             (target_positions()
                                                 .iter()
                                                 .find(|x| x.id == position.id)
@@ -349,7 +361,7 @@ pub fn App() -> impl IntoView {
                                                     .find(|x| x.id == position.id)
                                                     .unwrap()
                                                     .current_position)
-                                                .round_dp(0),
+                                                .round_dp(0)
                                         )}
                                     </div>
                                 </td>
@@ -449,7 +461,7 @@ pub fn App() -> impl IntoView {
                                             .cloned()
                                             .map(|x| x.value)
                                             .sum::<Decimal>())) * dec!(-1))
-                                        .round_dp(0),
+                                        .round_dp(0)
                                 )}
                                 {" = ".to_string()}
                                 {target_positions()
