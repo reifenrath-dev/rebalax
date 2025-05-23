@@ -72,7 +72,7 @@ pub fn App() -> impl IntoView {
                 })
                 .collect::<Vec<TargetAsset>>();
         }
-        functions::get_target_assets(strategy.get(), positions.get().rows, position_total())
+        functions::get_target_assets(strategy.get(), positions.get().rows)
     };
 
     let get_diff_string = |diff: Decimal| {

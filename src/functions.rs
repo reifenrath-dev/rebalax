@@ -11,7 +11,13 @@ struct UnbalancedAsset {
     position: Decimal,
 }
 
-pub fn get_target_assets(strategy: StrategyState, positions: Vec<AssetInputState>, position_total: Decimal) -> Vec<TargetAsset> {
+pub fn get_target_assets(strategy: StrategyState, positions: Vec<AssetInputState>) -> Vec<TargetAsset> {
+    let position_total = positions
+        .iter()
+        .cloned()
+        .map(|x| x.current_position)
+        .sum::<Decimal>();
+    
     match strategy {
         z @ StrategyState::Buy | z @ StrategyState::Sell => {
             let is_buy = z == StrategyState::Buy;
@@ -50,13 +56,12 @@ pub fn get_target_assets(strategy: StrategyState, positions: Vec<AssetInputState
                 .collect::<Vec<TargetAsset>>()
         }
         StrategyState::BuySell => {
-            let total = position_total;
             positions
                 .iter()
                 .cloned()
                 .map(|position| TargetAsset {
                     id: position.id,
-                    value: position.target_allocation * total,
+                    value: position.target_allocation * position_total,
                 })
                 .collect()
         }

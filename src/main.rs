@@ -1,6 +1,7 @@
 mod app;
 mod functions;
 mod types;
+mod tests;
 
 use app::*;
 use leptos::prelude::*;
