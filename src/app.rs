@@ -69,13 +69,13 @@ pub fn App() -> impl IntoView {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),
                     current_position: dec!(0),
-                    target_allocation: dec!(0),
+                    target_allocation: dec!(70),
                 },
                 AssetInputState {
                     id: Uuid::now_v7(),
                     name: "Position 2".to_string(),
                     current_position: dec!(0),
-                    target_allocation: dec!(0),
+                    target_allocation: dec!(30),
                 },
             ],
         });
