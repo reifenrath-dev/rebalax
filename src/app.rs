@@ -1,5 +1,5 @@
 use crate::functions;
-use crate::types::{AssetInputState, Data, StrategyState, TargetAsset};
+use crate::types::{PositionInputState, PositionsDataStore, StrategyState, TargetPosition};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
@@ -14,18 +14,18 @@ pub fn App() -> impl IntoView {
         use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
 
     let (positions, set_positions, _) =
-        use_local_storage::<Data, JsonSerdeCodec>("asset-state");
+        use_local_storage::<PositionsDataStore, JsonSerdeCodec>("asset-state");
     
     if positions.get().rows.len() == 0 {
-        set_positions.set(Data {
+        set_positions.set(PositionsDataStore {
             rows: vec![
-                AssetInputState {
+                PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),
                     current_position: dec!(0),
                     target_allocation: dec!(70),
                 },
-                AssetInputState {
+                PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 2".to_string(),
                     current_position: dec!(0),
@@ -36,43 +36,22 @@ pub fn App() -> impl IntoView {
     }
 
     // Value Functions
-    let position_total = move || {
-        positions
-            .get()
-            .rows
-            .iter()
-            .cloned()
-            .map(|x| x.current_position)
-            .sum::<Decimal>()
-    };
-    let allocation = move |position: Decimal| {
-        if position_total() == dec!(0) {
-            dec!(0)
-        } else {
-            position / position_total()
-        }
-    };
+    let position_total = move || { positions.get().total() };
 
     let target_positions = move || {
-        if positions
-            .get()
-            .rows
-            .iter()
-            .cloned()
-            .map(|x| x.target_allocation)
-            .sum::<Decimal>()
-            != dec!(1)
-        {
+        // If the target allocations don't sum up to 100%, we cannot calculate the target positions.
+        // So we just return the current position value.
+        if !positions.get().is_valid_target_allocation() {
             return positions
                 .get()
                 .rows
                 .iter()
                 .cloned()
-                .map(|x| TargetAsset {
+                .map(|x| TargetPosition {
                     id: x.id,
-                    value: dec!(0),
+                    value: x.current_position,
                 })
-                .collect::<Vec<TargetAsset>>();
+                .collect::<Vec<TargetPosition>>();
         }
         functions::get_target_assets(strategy.get(), positions.get().rows)
     };
@@ -153,7 +132,10 @@ pub fn App() -> impl IntoView {
                                                     .find(|x| x.id == position.id)
                                                     .unwrap()
                                                     .name = event_target_value(&ev).parse().unwrap();
-                                                set_positions.set(Data { rows: new_positions })
+                                                set_positions
+                                                    .set(PositionsDataStore {
+                                                        rows: new_positions,
+                                                    })
                                             }
                                         />
                                         <button
@@ -211,7 +193,10 @@ pub fn App() -> impl IntoView {
                                                 .current_position = event_target_value(&ev)
                                                 .parse::<Decimal>()
                                                 .unwrap();
-                                            set_positions.set(Data { rows: new_positions })
+                                            set_positions
+                                                .set(PositionsDataStore {
+                                                    rows: new_positions,
+                                                })
                                         }
                                     />
                                 </td>
@@ -220,15 +205,7 @@ pub fn App() -> impl IntoView {
                                         {move || {
                                             format!(
                                                 "{}",
-                                                (allocation(
-                                                    positions
-                                                        .get()
-                                                        .rows
-                                                        .iter()
-                                                        .find(|x| x.id == position.id)
-                                                        .unwrap()
-                                                        .current_position,
-                                                ) * dec!(100))
+                                                (positions.get().allocation_for(position.id) * dec!(100))
                                                     .round_dp(2)
                                                     .to_string(),
                                             )
@@ -262,7 +239,7 @@ pub fn App() -> impl IntoView {
                                                     .find(|x| x.id == position.id)
                                                     .unwrap()
                                                     .current_position)
-                                                .round_dp(0)
+                                                .round_dp(0),
                                         )}
                                     </div>
                                 </td>
@@ -288,7 +265,10 @@ pub fn App() -> impl IntoView {
                                                 .target_allocation = event_target_value(&ev)
                                                 .parse::<Decimal>()
                                                 .unwrap() / dec!(100);
-                                            set_positions.set(Data { rows: new_positions })
+                                            set_positions
+                                                .set(PositionsDataStore {
+                                                    rows: new_positions,
+                                                })
                                         }
                                     />
                                 </td>
@@ -305,13 +285,13 @@ pub fn App() -> impl IntoView {
                         let len = positions.get().rows.len();
                         set_positions
                             .update(|value| {
-                                *value = Data {
+                                *value = PositionsDataStore {
                                     rows: value
                                         .rows
                                         .iter()
                                         .cloned()
                                         .chain([
-                                            AssetInputState {
+                                            PositionInputState {
                                                 id: Uuid::now_v7(),
                                                 name: format!("Position {}", len + 1),
                                                 current_position: dec!(0),
@@ -345,7 +325,9 @@ pub fn App() -> impl IntoView {
                 <b>Total</b>
                 <span>
                     {move || {
-                        if strategy.get() == StrategyState::BuySell {
+                        if strategy.get() == StrategyState::BuySell
+                            || !positions.get().is_valid_target_allocation()
+                        {
                             view! {
                                 {position_total().to_string()}
                                 {get_diff_string(dec!(0))}
@@ -360,16 +342,14 @@ pub fn App() -> impl IntoView {
                                         - (target_positions()
                                             .iter()
                                             .cloned()
-                                            .map(|x| x.value)
-                                            .sum::<Decimal>())) * dec!(-1))
-                                        .round_dp(0)
+                                            .fold(dec!(0), |acc, x| acc + x.value))) * dec!(-1))
+                                        .round_dp(0),
                                 )}
                                 {" = ".to_string()}
                                 {target_positions()
                                     .iter()
                                     .cloned()
-                                    .map(|x| x.value)
-                                    .sum::<Decimal>()
+                                    .fold(dec!(0), |acc, x| acc + x.value)
                                     .round_dp(0)
                                     .to_string()}
                             }

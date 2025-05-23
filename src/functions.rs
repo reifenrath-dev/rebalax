@@ -1,4 +1,4 @@
-use crate::types::{AssetInputState, StrategyState, TargetAsset};
+use crate::types::{PositionInputState, StrategyState, TargetPosition};
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use uuid::Uuid;
@@ -13,8 +13,8 @@ struct UnbalancedAsset {
 
 pub fn get_target_assets(
     strategy: StrategyState,
-    positions: Vec<AssetInputState>,
-) -> Vec<TargetAsset> {
+    positions: Vec<PositionInputState>,
+) -> Vec<TargetPosition> {
     let position_total = positions
         .iter()
         .cloned()
@@ -52,16 +52,16 @@ pub fn get_target_assets(
             assets
                 .iter()
                 .cloned()
-                .map(|asset| TargetAsset {
+                .map(|asset| TargetPosition {
                     id: asset.id,
                     value: asset.target_allocation * factor,
                 })
-                .collect::<Vec<TargetAsset>>()
+                .collect::<Vec<TargetPosition>>()
         }
         StrategyState::BuySell => positions
             .iter()
             .cloned()
-            .map(|position| TargetAsset {
+            .map(|position| TargetPosition {
                 id: position.id,
                 value: position.target_allocation * position_total,
             })

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::functions::get_target_assets;
-    use crate::types::{AssetInputState, StrategyState};
+    use crate::types::{PositionInputState, StrategyState};
     use rust_decimal_macros::dec;
     use uuid::Uuid;
 
@@ -12,19 +12,19 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions = vec![
-            AssetInputState {
+            PositionInputState {
                 id: first_id,
                 name: "".to_string(),
                 current_position: dec!(300),
                 target_allocation: dec!(0.7),
             },
-            AssetInputState {
+            PositionInputState {
                 id: second_id,
                 name: "".to_string(),
                 current_position: dec!(300),
                 target_allocation: dec!(0.2),
             },
-            AssetInputState {
+            PositionInputState {
                 id: third_id,
                 name: "".to_string(),
                 current_position: dec!(200),
@@ -52,19 +52,19 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions = vec![
-            AssetInputState {
+            PositionInputState {
                 id: first_id,
                 name: "".to_string(),
                 current_position: dec!(700),
                 target_allocation: dec!(0.7),
             },
-            AssetInputState {
+            PositionInputState {
                 id: second_id,
                 name: "".to_string(),
                 current_position: dec!(300),
                 target_allocation: dec!(0.2),
             },
-            AssetInputState {
+            PositionInputState {
                 id: third_id,
                 name: "".to_string(),
                 current_position: dec!(300),
@@ -92,19 +92,19 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions = vec![
-            AssetInputState {
+            PositionInputState {
                 id: first_id,
                 name: "".to_string(),
                 current_position: dec!(300),
                 target_allocation: dec!(0.7),
             },
-            AssetInputState {
+            PositionInputState {
                 id: second_id,
                 name: "".to_string(),
                 current_position: dec!(300),
                 target_allocation: dec!(0.2),
             },
-            AssetInputState {
+            PositionInputState {
                 id: third_id,
                 name: "".to_string(),
                 current_position: dec!(200),
