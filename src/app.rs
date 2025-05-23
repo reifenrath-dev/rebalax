@@ -315,7 +315,7 @@ pub fn App() -> impl IntoView {
                                     />
                                 </td>
                                 <td class="number">
-                                    <div class="number">
+                                    <div class="number percentage">
                                         {move || {
                                             format!(
                                                 "{}",

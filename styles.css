@@ -92,7 +92,11 @@ th:first-child {
 }
 
 div.number {
-  padding: 0.6em 1.2em;
+  padding: 0.6em;
+}
+
+div.number.percentage {
+  padding: 0.6em 30px 0.6em 0.6em;
 }
 
 td:nth-child(3) {
@@ -103,7 +107,7 @@ td:nth-child(3) {
 td:nth-child(3)::after {
   content: '%';
   position: absolute;
-  right: 5px;
+  right: 15px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
@@ -144,7 +148,8 @@ input[type=text]:focus {
 }
 input[type=number].percentage {
   width: 45px;
-  padding-right: 20px;
+  padding-right: 30px;
+  padding-left:  10px;
 }
 input[type=radio]{
   position: absolute;
@@ -174,7 +179,7 @@ button,
 input[type=radio] + label {
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 0.6em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
