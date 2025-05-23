@@ -17,9 +17,7 @@ pub struct Data {
 
 impl Default for Data {
     fn default() -> Self {
-        Self {
-            rows: vec![],
-        }
+        Self { rows: vec![] }
     }
 }
 
@@ -46,7 +44,7 @@ enum StrategyState {
     Sell,
 }
 
-impl Default for StrategyState  {
+impl Default for StrategyState {
     fn default() -> Self {
         StrategyState::Buy
     }
@@ -60,34 +58,67 @@ struct TargetAsset {
 
 #[component]
 pub fn App() -> impl IntoView {
-    let (strategy, set_strategy, _) = use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
+    let (strategy, set_strategy, _) =
+        use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
 
-    let (positions, set_positions, _) =
-        use_local_storage::<Data, JsonSerdeCodec>("asset-state");
+    let (positions, set_positions, _) = use_local_storage::<Data, JsonSerdeCodec>("asset-state");
     if positions.get().rows.len() == 0 {
         set_positions.set(Data {
-            rows: vec![AssetInputState {
-                id: Uuid::now_v7(),
-                name: "Position 1".to_string(),
-                current_position: dec!(0),
-                target_allocation: dec!(0),
-            }, AssetInputState {
-                id: Uuid::now_v7(),
-                name: "Position 2".to_string(),
-                current_position: dec!(0),
-                target_allocation: dec!(0),
-            }]
+            rows: vec![
+                AssetInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 1".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0),
+                },
+                AssetInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 2".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0),
+                },
+            ],
         });
     }
 
     // Value Functions
-    let position_total = move || positions.get().rows.iter().cloned().map(|x| x.current_position).sum::<Decimal>();
-    let allocation = move |position: Decimal| if position_total() == dec!(0) { dec!(0) } else { position / position_total() };
+    let position_total = move || {
+        positions
+            .get()
+            .rows
+            .iter()
+            .cloned()
+            .map(|x| x.current_position)
+            .sum::<Decimal>()
+    };
+    let allocation = move |position: Decimal| {
+        if position_total() == dec!(0) {
+            dec!(0)
+        } else {
+            position / position_total()
+        }
+    };
 
     let target_positions = move || {
-        if positions.get().rows.iter().cloned().map(|x| x.target_allocation).sum::<Decimal>() != dec!(1)
+        if positions
+            .get()
+            .rows
+            .iter()
+            .cloned()
+            .map(|x| x.target_allocation)
+            .sum::<Decimal>()
+            != dec!(1)
         {
-            return positions.get().rows.iter().cloned().map(|x| TargetAsset{id: x.id, value: dec!(0)}).collect::<Vec<TargetAsset>>();
+            return positions
+                .get()
+                .rows
+                .iter()
+                .cloned()
+                .map(|x| TargetAsset {
+                    id: x.id,
+                    value: dec!(0),
+                })
+                .collect::<Vec<TargetAsset>>();
         }
 
         return match strategy.get() {
@@ -95,7 +126,11 @@ pub fn App() -> impl IntoView {
                 let is_buy = z == StrategyState::Buy;
                 let polarity = if is_buy { dec!(-1) } else { dec!(1) };
 
-                let assets: Vec<UnbalancedAsset> = positions.get().rows.iter().cloned()
+                let assets: Vec<UnbalancedAsset> = positions
+                    .get()
+                    .rows
+                    .iter()
+                    .cloned()
                     .map(|x| UnbalancedAsset {
                         id: x.id,
                         allocation: allocation(x.current_position),
@@ -104,25 +139,38 @@ pub fn App() -> impl IntoView {
                     })
                     .collect();
 
-                let highest_deviation = assets.iter().cloned()
+                let highest_deviation = assets
+                    .iter()
+                    .cloned()
                     .filter(|asset| asset.target_allocation != dec!(0))
-                    .min_by_key(|asset| (asset.allocation - asset.target_allocation) * polarity / asset.target_allocation)
+                    .min_by_key(|asset| {
+                        (asset.allocation - asset.target_allocation) * polarity
+                            / asset.target_allocation
+                    })
                     .unwrap();
 
                 let factor = highest_deviation.position / highest_deviation.target_allocation;
 
-                assets.iter().cloned()
-                    .map(|asset| TargetAsset { id: asset.id, value: asset.target_allocation * factor })
+                assets
+                    .iter()
+                    .cloned()
+                    .map(|asset| TargetAsset {
+                        id: asset.id,
+                        value: asset.target_allocation * factor,
+                    })
                     .collect::<Vec<TargetAsset>>()
             }
             StrategyState::BuySell => {
                 let total = position_total();
-                positions.get().rows.iter().cloned()
-                    .map(|position|
-                        TargetAsset {
-                            id: position.id,
-                            value: position.target_allocation * total
-                        })
+                positions
+                    .get()
+                    .rows
+                    .iter()
+                    .cloned()
+                    .map(|position| TargetAsset {
+                        id: position.id,
+                        value: position.target_allocation * total,
+                    })
                     .collect()
             }
         };
@@ -130,12 +178,12 @@ pub fn App() -> impl IntoView {
 
     let get_diff_string = |diff: Decimal| {
         if diff.is_zero() {
-            view!{ <span class="zero">{"".to_string()}</span> }
+            view! { <span class="zero">{"".to_string()}</span> }
         } else {
             if diff.is_sign_positive() {
-                view!{ <span class="positive">{format!(" +{}", diff)}</span> }
+                view! { <span class="positive">{format!(" +{}", diff)}</span> }
             } else {
-                view!{ <span class="negative">{format!(" {}", diff)}</span> }
+                view! { <span class="negative">{format!(" {}", diff)}</span> }
             }
         }
     };
@@ -253,16 +301,16 @@ pub fn App() -> impl IntoView {
                                 target_allocation: dec!(0),}])
                             .collect()})
                         }}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>        
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 </button>
             </section>
-        
+
             <section class="total">
                 <b>Total</b>
                 <span>
                 {move || {
                     if strategy.get() == StrategyState::BuySell {
-                        view! { 
+                        view! {
                             {position_total().to_string()}
                             {get_diff_string(dec!(0))}
                             {"".to_string()}
