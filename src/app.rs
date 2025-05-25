@@ -1,5 +1,5 @@
 use crate::functions;
-use crate::types::{PositionInputState, PositionsDataStore, StrategyState, TargetPosition};
+use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
@@ -15,46 +15,11 @@ pub fn App() -> impl IntoView {
 
     let (positions, set_positions, _) =
         use_local_storage::<PositionsDataStore, JsonSerdeCodec>("asset-state");
-    
-    if positions.get().rows.len() == 0 {
-        set_positions.set(PositionsDataStore {
-            rows: vec![
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 1".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(70),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(30),
-                },
-            ],
-        });
-    }
 
     // Value Functions
-    let position_total = move || { positions.get().total() };
+    let position_total = move || positions.get().total();
 
-    let target_positions = move || {
-        // If the target allocations don't sum up to 100%, we cannot calculate the target positions.
-        // So we just return the current position value.
-        if !positions.get().is_valid_target_allocation() {
-            return positions
-                .get()
-                .rows
-                .iter()
-                .cloned()
-                .map(|x| TargetPosition {
-                    id: x.id,
-                    value: x.current_position,
-                })
-                .collect::<Vec<TargetPosition>>();
-        }
-        functions::get_target_assets(strategy.get(), positions.get().rows)
-    };
+    let target_positions = move || functions::get_target_assets(strategy.get(), positions.get());
 
     let get_diff_string = |diff: Decimal| {
         if diff.is_zero() {
@@ -177,6 +142,7 @@ pub fn App() -> impl IntoView {
                                 <td class="number">
                                     <input
                                         id=format!("{}-position-input", position.id)
+                                        min="0"
                                         placeholder="..."
                                         type="number"
                                         value=if position.current_position.is_zero() {
@@ -192,7 +158,7 @@ pub fn App() -> impl IntoView {
                                                 .unwrap()
                                                 .current_position = event_target_value(&ev)
                                                 .parse::<Decimal>()
-                                                .unwrap();
+                                                .unwrap_or(dec!(0));
                                             set_positions
                                                 .set(PositionsDataStore {
                                                     rows: new_positions,
@@ -246,6 +212,7 @@ pub fn App() -> impl IntoView {
                                 <td class="number">
                                     <input
                                         id=format!("{}-target-input", position.id)
+                                        min="0"
                                         placeholder="..."
                                         type="number"
                                         class="percentage"
@@ -264,7 +231,7 @@ pub fn App() -> impl IntoView {
                                                 .unwrap()
                                                 .target_allocation = event_target_value(&ev)
                                                 .parse::<Decimal>()
-                                                .unwrap() / dec!(100);
+                                                .unwrap_or(dec!(0)) / dec!(100);
                                             set_positions
                                                 .set(PositionsDataStore {
                                                     rows: new_positions,
@@ -325,8 +292,15 @@ pub fn App() -> impl IntoView {
                 <b>Total</b>
                 <span>
                     {move || {
+                        let diff = ((position_total()
+                            - (target_positions()
+                                .iter()
+                                .cloned()
+                                .fold(dec!(0), |acc, x| acc + x.value))) * dec!(-1))
+                            .round_dp(0);
                         if strategy.get() == StrategyState::BuySell
                             || !positions.get().is_valid_target_allocation()
+                            || !positions.get().all_positions_above_zero() || diff == dec!(0)
                         {
                             view! {
                                 {position_total().to_string()}
@@ -337,14 +311,7 @@ pub fn App() -> impl IntoView {
                         } else {
                             view! {
                                 {position_total().to_string()}
-                                {get_diff_string(
-                                    ((position_total()
-                                        - (target_positions()
-                                            .iter()
-                                            .cloned()
-                                            .fold(dec!(0), |acc, x| acc + x.value))) * dec!(-1))
-                                        .round_dp(0),
-                                )}
+                                {get_diff_string(diff)}
                                 {" = ".to_string()}
                                 {target_positions()
                                     .iter()
