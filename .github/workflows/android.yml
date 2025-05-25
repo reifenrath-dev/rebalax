@@ -1,4 +1,4 @@
-name: 'publish-android'
+name: "publish-android"
 # copy of https://v2.tauri.app/distribute/pipelines/github/
 # edited using https://github.com/charlesschaefer/faire-todo-app/blob/main/.github/workflows/android.yml
 
@@ -19,7 +19,7 @@ jobs:
       #########################
       # START: Restore Caches #
       #########################
-      - name: 'Restore Cache: Gradle'
+      - name: "Restore Cache: Gradle"
         uses: actions/cache/restore@v4
         id: gradle-cache-restore
         with:
@@ -27,7 +27,7 @@ jobs:
             ~/.gradle/
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-      - name: 'Restore Cache: Android SDK/NDK'
+      - name: "Restore Cache: Android SDK/NDK"
         uses: actions/cache/restore@v4
         id: android-cache-restore
         with:
@@ -39,15 +39,15 @@ jobs:
       # END: Restore Caches #
       #######################
 
-      - name: 'Install: Linux Dependencies'
+      - name: "Install: Linux Dependencies"
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: 'Install: Rust Stable'
+      - name: "Install: Rust Stable"
         uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
 
-      - name: 'Cache: Cargo'
+      - name: "Cache: Cargo"
         uses: actions/cache@v4
         id: cache-cargo
         with:
@@ -59,33 +59,33 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
 
-      - name: 'Add: Wasm32 Target'
+      - name: "Add: Wasm32 Target"
         run: rustup target add wasm32-unknown-unknown
 
-      - name: 'Install: Tauri-CLI and Trunk'
+      - name: "Install: Tauri-CLI and Trunk"
         if: steps.cache-cargo.outputs.cache-hit != 'true'
         run: cargo install tauri-cli trunk --locked
 
-      - name: 'Setup: JDK'
+      - name: "Setup: JDK"
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: "temurin"
+          java-version: "17"
 
-      - name: 'Setup: Android SDK'
+      - name: "Setup: Android SDK"
         uses: android-actions/setup-android@v3
 
-      - name: 'Setup: Android NDK'
+      - name: "Setup: Android NDK"
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r26d
           link-to-sdk: true
 
-      - name: 'Install: Android Targets'
+      - name: "Install: Android Targets"
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
-      - name: 'Setup: Android Signing'
+      - name: "Setup: Android Signing"
         run: |
           cd src-tauri/gen/android
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
@@ -93,7 +93,7 @@ jobs:
           base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
           echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
 
-      - name: 'Build: APKs'
+      - name: "Build: APKs"
         env:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: cargo tauri android build --apk --split-per-abi
@@ -101,7 +101,7 @@ jobs:
       ########################
       # START: Create Caches #
       ########################
-      - name: 'Create Cache: Gradle'
+      - name: "Create Cache: Gradle"
         uses: actions/cache/save@v4
         id: gradle-cache-create
         with:
@@ -109,7 +109,7 @@ jobs:
             ~/.gradle/
           key: ${{ steps.gradle-cache-restore.outputs.cache-primary-key }}
 
-      - name: 'Create Cache: Android SDK & NDK'
+      - name: "Create Cache: Android SDK & NDK"
         uses: actions/cache/save@v4
         id: android-cache-save
         with:
@@ -127,8 +127,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 0.1.0
-          release_name: Release 0.1.0
+          tag_name: 0.1.${{ github.run_number }}
+          release_name: Release 0.1.${{ github.run_number }}
           draft: true
           prerelease: false
 
@@ -138,6 +138,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: /home/runner/work/rebalax/rebalax/src-tauri/gen/android/app/build/outputs/apk/arm64/release/app-arm64-release.apk
-          asset_name: app-arm64-release.apk
+          asset_path: ./rebalax/src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk
+          asset_name: rebalax-0.1.${{ github.run_number }}-universal.apk
           asset_content_type: application/vnd.android.package-archive
