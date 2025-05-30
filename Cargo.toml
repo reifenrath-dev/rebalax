@@ -10,7 +10,10 @@ serde = { version = "1", features = ["derive"] }
 console_error_panic_hook = "0.1.7"
 rust_decimal = "1.37.1"
 rust_decimal_macros = "1.37.1"
-leptos-use = { version = "0.16.0-beta2", default-features = false, features = ["storage", "docs"] }
+leptos-use = { version = "0.16.0-beta2", default-features = false, features = [
+    "storage",
+    "docs",
+] }
 log = "0.4.27"
 console_log = "1.0.0"
 codee = { version = "0.3", features = ["json_serde", "base64", "prost"] }
@@ -19,6 +22,15 @@ strum_macros = "0.27.1"
 reactive_stores = "0.2.2"
 uuid = { version = "1.16", features = ["js", "v4", "v7", "serde"] }
 
-
 [workspace]
 members = ["src-tauri"]
+
+[profile.dev]
+incremental = true
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
