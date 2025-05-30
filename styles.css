@@ -46,6 +46,8 @@ main {
 }
 .titlebar-button {
   display: inline-flex;
+  margin: 0;
+  padding: 0;
   justify-content: center;
   align-items: center;
   width: var(--titlebar-height);

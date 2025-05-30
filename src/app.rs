@@ -49,7 +49,7 @@ pub fn App() -> impl IntoView {
         <div class="titlebar">
             <img height=24 width=24 src="public/32x32.png"/>
             <span class="titlebar-title">Rebalax</span>
-            <div class="titlebar-button" id="titlebar-menu">
+            <button class="titlebar-button" id="titlebar-menu">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -66,7 +66,7 @@ pub fn App() -> impl IntoView {
                     <path d="M4 18h16" />
                     <path d="M4 6h16" />
                 </svg>
-            </div>
+            </button>
         </div>
 
         <main>
