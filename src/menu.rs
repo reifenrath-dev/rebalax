@@ -5,7 +5,7 @@ pub fn Menu() -> impl IntoView {
     view! {
         <main>
             <nav>
-                <a class="menu-item" href="https://github.com/reifenrath-dev/rebalax">
+                <a class="menu-item" href="https://github.com/reifenrath-dev/rebalax" target="_blank" rel="external">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -23,7 +23,7 @@ pub fn Menu() -> impl IntoView {
                     </svg>
                     Github
                 </a>
-                <a class="menu-item" href="https://www.buymeacoffee.com/renereifenrath">
+                <a class="menu-item" href="https://www.buymeacoffee.com/renereifenrath" target="_blank" rel="external">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"

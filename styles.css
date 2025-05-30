@@ -34,6 +34,7 @@ main {
 }
 
 .titlebar {
+  background: linear-gradient(to bottom, var(--black), transparent);
   height: var(--titlebar-height);
   justify-content: space-between;
   align-items: center;
@@ -45,6 +46,7 @@ main {
   right: 0;
   padding-left: var(--padding-left);
   padding-right: var(--padding-left);
+  z-index: 1;
 }
 .titlebar-button {
   display: inline-flex;
@@ -60,11 +62,7 @@ main {
   border: 1px solid transparent;
   font-family: inherit;
   color: var(--white);
-  background-color: var(--black);
-  border-radius: 0;
-}
-.titlebar-button:hover {
-  border-color: var(--main);
+  background-color: transparent;
   border-radius: 0;
 }
 .titlebar-title {
@@ -232,7 +230,7 @@ input[type="radio"]:active + label {
 }
 input[type="radio"]:hover + label,
 button:hover,
-a:hover {
+a.menu-item:hover {
   border-color: var(--main);
 }
 input,
