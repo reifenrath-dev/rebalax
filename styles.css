@@ -43,6 +43,8 @@ main {
   top: 0;
   left: 0;
   right: 0;
+  padding-left: var(--padding-left);
+  padding-right: var(--padding-left);
 }
 .titlebar-button {
   display: inline-flex;
@@ -71,6 +73,24 @@ main {
 
 section {
   display: flex;
+}
+
+a.menu-item {
+  width: calc(100% - var(--padding-left));
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  color: var(--white);
+  display: flex;
+  justify-content: center;
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
 }
 
 section.strategy {
@@ -211,12 +231,14 @@ input[type="radio"]:active + label {
   color: var(--black);
 }
 input[type="radio"]:hover + label,
-button:hover {
+button:hover,
+a:hover {
   border-color: var(--main);
 }
 input,
 button,
-input[type="radio"] + label {
+input[type="radio"] + label,
+a {
   border-radius: var(--border-radius);
   border: 1px solid transparent;
   padding: 0.6em;

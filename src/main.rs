@@ -1,5 +1,7 @@
 mod app;
 mod functions;
+mod menu;
+mod rebalancer;
 mod tests;
 mod types;
 
@@ -12,7 +14,7 @@ fn main() {
     console_error_panic_hook::set_once();
 
     let unmount_handle = mount_to(demo_or_body(), || {
-        view! { <App/> }
+        view! { <App /> }
     });
 
     unmount_handle.forget();
