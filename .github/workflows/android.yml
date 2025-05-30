@@ -16,36 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      #########################
-      # START: Restore Caches #
-      #########################
-      - name: "Restore Cache: Gradle"
-        uses: actions/cache/restore@v4
-        id: gradle-cache-restore
+      - name: "Install: Rust Stable with android targets"
+        uses: dtolnay/rust-toolchain@stable
         with:
-          path: |
-            ~/.gradle/
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - name: "Restore Cache: Android SDK/NDK"
-        uses: actions/cache/restore@v4
-        id: android-cache-restore
-        with:
-          path: |
-            $ANDROID_HOME
-            $NDK_HOME
-          key: ${{ runner.os }}-android-${{ hashFiles('**/*.properties') }}
-      #######################
-      # END: Restore Caches #
-      #######################
-
-      - name: "Install: Linux Dependencies"
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: "Install: Rust Stable"
-        uses: dtolnay/rust-toolchain@stable # Set this to dtolnay/rust-toolchain@nightly
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
       - name: "Cache: Cargo"
         uses: actions/cache@v4
@@ -59,9 +33,6 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
 
-      - name: "Add: Wasm32 Target"
-        run: rustup target add wasm32-unknown-unknown
-
       - name: "Install: Tauri-CLI and Trunk"
         if: steps.cache-cargo.outputs.cache-hit != 'true'
         run: cargo install tauri-cli trunk --locked
@@ -71,6 +42,7 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
+          cache: "gradle"
 
       - name: "Setup: Android SDK"
         uses: android-actions/setup-android@v3
@@ -81,9 +53,7 @@ jobs:
         with:
           ndk-version: r26d
           link-to-sdk: true
-
-      - name: "Install: Android Targets"
-        run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+          local-cache: true
 
       - name: "Setup: Android Signing"
         run: |
@@ -97,29 +67,6 @@ jobs:
         env:
           NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: cargo tauri android build --apk
-
-      ########################
-      # START: Create Caches #
-      ########################
-      - name: "Create Cache: Gradle"
-        uses: actions/cache/save@v4
-        id: gradle-cache-create
-        with:
-          path: |
-            ~/.gradle/
-          key: ${{ steps.gradle-cache-restore.outputs.cache-primary-key }}
-
-      - name: "Create Cache: Android SDK & NDK"
-        uses: actions/cache/save@v4
-        id: android-cache-save
-        with:
-          path: |
-            $ANDROID_HOME
-            $NDK_HOME
-          key: ${{ steps.android-cache-restore.outputs.cache-primary-key }}
-      ######################
-      # END: Create Caches #
-      ######################
 
       - name: Create Release
         id: create_release
