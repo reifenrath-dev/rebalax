@@ -19,7 +19,7 @@ jobs:
       - name: "Install: Rust Stable with android targets"
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+          targets: wasm32-unknown-unknown,aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
 
       - name: "Cache: Cargo"
         uses: actions/cache@v4
@@ -53,7 +53,6 @@ jobs:
         with:
           ndk-version: r26d
           link-to-sdk: true
-          local-cache: true
 
       - name: "Setup: Android Signing"
         run: |
