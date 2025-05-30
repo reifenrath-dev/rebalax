@@ -20,15 +20,51 @@
   -webkit-text-size-adjust: 100%;
   --padding-left: 10px;
   --border-radius: 8px;
+  --titlebar-height: 40px;
 }
 body {
   margin: 10px;
 }
 
 main {
+  margin-top: 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.titlebar {
+  height: var(--titlebar-height);
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.titlebar-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--titlebar-height);
+  height: var(--titlebar-height);
+  user-select: none;
+  -webkit-user-select: none;
+  border-radius: none;
+  border: 1px solid transparent;
+  font-family: inherit;
+  color: var(--white);
+  background-color: var(--black);
+  border-radius: 0;
+}
+.titlebar-button:hover {
+  border-color: var(--main);
+  border-radius: 0;
+}
+.titlebar-title {
+  font-size: 1.5rem;
 }
 
 section {

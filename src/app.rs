@@ -46,6 +46,29 @@ pub fn App() -> impl IntoView {
     };
 
     view! {
+        <div class="titlebar">
+            <img height=24 width=24 src="public/32x32.png"/>
+            <span class="titlebar-title">Rebalax</span>
+            <div class="titlebar-button" id="titlebar-menu">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-menu-icon lucide-menu"
+                >
+                    <path d="M4 12h16" />
+                    <path d="M4 18h16" />
+                    <path d="M4 6h16" />
+                </svg>
+            </div>
+        </div>
+
         <main>
             <section class="strategy">
                 <b>Strategy</b>
@@ -61,7 +84,10 @@ pub fn App() -> impl IntoView {
                                     checked=move || strategy.get() == stra
                                     on:change=move |_| set_strategy.set(stra)
                                 />
-                                <label for=format!("strategy-{}",stra)>
+                                <label for=format!(
+                                    "strategy-{}",
+                                    stra,
+                                )>
                                     {if stra == StrategyState::BuySell {
                                         "Buy & Sell".to_string()
                                     } else {
