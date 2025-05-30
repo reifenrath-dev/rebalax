@@ -61,10 +61,7 @@ pub fn App() -> impl IntoView {
                                     checked=move || strategy.get() == stra
                                     on:change=move |_| set_strategy.set(stra)
                                 />
-                                <label for=format!(
-                                    "strategy-{}",
-                                    stra,
-                                )>
+                                <label for=format!("strategy-{}",stra)>
                                     {if stra == StrategyState::BuySell {
                                         "Buy & Sell".to_string()
                                     } else {
