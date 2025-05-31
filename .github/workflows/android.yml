@@ -25,16 +25,22 @@ jobs:
         uses: actions/cache@v4
         id: cache-cargo
         with:
+          path: target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: "Cache: Tauri Trunk"
+        uses: actions/cache@v4
+        id: cache-cargo-global
+        with:
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+          key: ${{ runner.os }}-cargo-tauri-trunk
 
       - name: "Install: Tauri-CLI and Trunk"
-        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        if: steps.cache-cargo-global.outputs.cache-hit != 'true'
         run: cargo install tauri-cli trunk --locked
 
       - name: "Setup: JDK"
