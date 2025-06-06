@@ -1,4 +1,5 @@
 mod app;
+mod components;
 mod functions;
 mod menu;
 mod rebalancer;
