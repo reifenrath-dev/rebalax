@@ -1,6 +1,6 @@
 [package]
 name = "rebalax"
-version = "0.1.0"
+version = "0.1.22"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"

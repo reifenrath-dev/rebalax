@@ -1,4 +1,6 @@
+use crate::components::*;
 use crate::functions;
+use crate::i18n::*;
 use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
@@ -10,6 +12,7 @@ use uuid::Uuid;
 
 #[component]
 pub fn Rebalancer() -> impl IntoView {
+    let i18n = use_i18n();
     let (strategy, set_strategy, _) =
         use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
 
@@ -48,7 +51,7 @@ pub fn Rebalancer() -> impl IntoView {
     view! {
         <main>
             <section class="strategy">
-                <b>Strategy</b>
+                <b>{t!(i18n, strategy)}:</b>
                 <div class="strategy-options">
                     {StrategyState::iter()
                         .map(|stra| {
@@ -60,15 +63,20 @@ pub fn Rebalancer() -> impl IntoView {
                                     value=stra.to_string()
                                     checked=move || strategy.get() == stra
                                     on:change=move |_| set_strategy.set(stra)
+                                    alt={match stra {
+                                        StrategyState::BuySell => t_string!(i18n, alt_buy_sell).to_string(),
+                                        StrategyState::Buy => t_string!(i18n, alt_buy).to_string(),
+                                        StrategyState::Sell => t_string!(i18n, alt_sell).to_string()
+                                    }}
                                 />
                                 <label for=format!(
                                     "strategy-{}",
                                     stra,
                                 )>
-                                    {if stra == StrategyState::BuySell {
-                                        "Buy & Sell".to_string()
-                                    } else {
-                                        stra.to_string()
+                                    {match stra {
+                                        StrategyState::BuySell => t_string!(i18n, buy_sell).to_string(),
+                                        StrategyState::Buy => t_string!(i18n, buy).to_string(),
+                                        StrategyState::Sell => t_string!(i18n, sell).to_string()
                                     }}
                                 </label>
                             }
@@ -117,28 +125,13 @@ pub fn Rebalancer() -> impl IntoView {
                                                     })
                                             }
                                         >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="1rem"
-                                                height="1rem"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                class="lucide lucide-trash-icon lucide-trash"
-                                            >
-                                                <path d="M3 6h18" />
-                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                            </svg>
+                                            <DeleteIcon/>
                                         </button>
                                     </div>
                                 </td>
                             </tr>
                             <tr class="current">
-                                <td>Current</td>
+                                <td>{t_string!(i18n, current)}</td>
                                 <td class="number">
                                     <input
                                         id=format!("{}-position-input", position.id)
@@ -180,7 +173,7 @@ pub fn Rebalancer() -> impl IntoView {
                                 </td>
                             </tr>
                             <tr class="target">
-                                <td>Target</td>
+                                <td>{t_string!(i18n, target)}</td>
                                 <td class="number">
                                     <div class="number">
                                         {move || {
@@ -270,26 +263,12 @@ pub fn Rebalancer() -> impl IntoView {
                             })
                     }
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-plus-icon lucide-plus"
-                    >
-                        <path d="M5 12h14" />
-                        <path d="M12 5v14" />
-                    </svg>
+                    <AddIcon/>
                 </button>
             </section>
 
             <section class="total">
-                <b>Total</b>
+                <b>{t!(i18n, total)}</b>
                 <span>
                     {move || {
                         let diff = ((position_total()

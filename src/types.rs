@@ -77,7 +77,9 @@ impl PositionsDataStore {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, EnumString, Display, EnumIter)]
+#[derive(
+    Serialize, Deserialize, Clone, Copy, Debug, PartialEq, EnumString, Display, EnumIter, Hash, Eq,
+)]
 pub enum StrategyState {
     Buy,
     BuySell,

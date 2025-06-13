@@ -1,0 +1,16 @@
+{
+  "strategy": "Strategy",
+  "click_to_change_lang": "Auf deutsch wechseln",
+  "alt_buy_sell": "Buy & Sell",
+  "alt_buy": "Buy",
+  "alt_sell": "Sell",
+  "buy_sell": "+/-",
+  "buy": "+",
+  "sell": "-",
+  "current": "Current",
+  "target": "Target",
+  "total": "Total",
+  "donate": "Donate",
+  "source_code": "Source Code",
+  "language": "Language"
+}

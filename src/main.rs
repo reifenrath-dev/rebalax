@@ -1,9 +1,11 @@
 mod app;
+mod components;
 mod functions;
 mod menu;
 mod rebalancer;
 mod tests;
 mod types;
+include!(concat!(env!("OUT_DIR"), "/i18n/mod.rs"));
 
 use app::*;
 use leptos::prelude::*;

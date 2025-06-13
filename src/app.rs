@@ -1,46 +1,48 @@
+use crate::components::*;
+use crate::i18n::*;
 use crate::menu::Menu;
 use crate::rebalancer::Rebalancer;
 use leptos::prelude::*;
-use leptos_router::components::*;
-use leptos_router::hooks::use_location;
-use leptos_router::path;
+use leptos_i18n_router::I18nRoute;
+use leptos_router::{components::*, hooks::use_location, path};
 
 #[component]
 pub fn App() -> impl IntoView {
+    leptos_meta::provide_meta_context();
+
     view! {
-        <Router>
-            <div class="titlebar">
-                <img height=24 width=24 src="public/32x32.png" />
-                <span class="titlebar-title">Rebalax</span>
-                <a
-                    class="titlebar-button"
-                    id="titlebar-menu"
-                    href=move || {
-                        if use_location().pathname.get().contains("menu") { "/" } else { "/menu" }
-                    }
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-menu-icon lucide-menu"
+        <I18nContextProvider>
+            <Router>
+                <div class="titlebar">
+                    <a
+                        class="titlebar-button"
+                        href="/"
                     >
-                        <path d="M4 12h16" />
-                        <path d="M4 18h16" />
-                        <path d="M4 6h16" />
-                    </svg>
-                </a>
-            </div>
-            <Routes fallback=|| "Not found">
-                <Route path=path!("/") view=Rebalancer />
-                <Route path=path!("/menu") view=Menu />
-            </Routes>
-        </Router>
+                        <img height=24 width=24 src="public/32x32.png" draggable="false" />
+                    </a>
+                    <a
+                        class="titlebar-button"
+                        href="/"
+                    >
+                        <span class="titlebar-title">Rebalax</span>
+                    </a>
+                    <a
+                        class="titlebar-button"
+                        id="titlebar-menu"
+                        href=move || {
+                            if use_location().pathname.get().contains("menu") { "/" } else { "/menu" }
+                        }
+                    >
+                        <MenuIcon/>
+                    </a>
+                </div>
+                <Routes fallback=|| "Not found">
+                    <I18nRoute<Locale, _, _> view=|| view! { <Outlet /> }>
+                    <Route path=path!("/") view=Rebalancer />
+                    <Route path=path!("/menu") view=Menu />
+                    </I18nRoute<Locale, _, _>>
+                </Routes>
+            </Router>
+        </I18nContextProvider>
     }
 }

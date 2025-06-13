@@ -3,6 +3,12 @@
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
+  user-drag: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
   --white: #f6f6f6;
   --black: #000;
   --almost-black: #222;
@@ -56,14 +62,11 @@ main {
   align-items: center;
   width: var(--titlebar-height);
   height: var(--titlebar-height);
-  user-select: none;
-  -webkit-user-select: none;
-  border-radius: none;
   border: 1px solid transparent;
   font-family: inherit;
   color: var(--white);
   background-color: transparent;
-  border-radius: 0;
+  text-decoration: none;
 }
 .titlebar-title {
   font-size: 1.5rem;
@@ -128,6 +131,11 @@ button.remove-position {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-start;
+}
+.language-options {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -219,9 +227,6 @@ input[type="radio"] + label {
   cursor: pointer;
   display: inline-block;
   text-align: center;
-}
-input[type="radio"]#strategy-BuySell + label {
-  min-width: 75px;
 }
 input[type="radio"]:checked + label,
 input[type="radio"]:active + label {
