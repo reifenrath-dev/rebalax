@@ -14,8 +14,18 @@ pub fn App() -> impl IntoView {
         <I18nContextProvider>
             <Router>
                 <div class="titlebar">
-                    <img height=24 width=24 src="public/32x32.png" />
-                    <span class="titlebar-title">Rebalax</span>
+                    <a
+                        class="titlebar-button"
+                        href="/"
+                    >
+                        <img height=24 width=24 src="public/32x32.png" draggable="false" />
+                    </a>
+                    <a
+                        class="titlebar-button"
+                        href="/"
+                    >
+                        <span class="titlebar-title">Rebalax</span>
+                    </a>
                     <a
                         class="titlebar-button"
                         id="titlebar-menu"
