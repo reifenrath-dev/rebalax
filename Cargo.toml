@@ -6,6 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 leptos = { version = "0.8", features = ["csr"] }
+leptos_router = "0.8"
+leptos_meta = { version = "0.8" }
+leptos_i18n = { features = ["csr"], workspace = true }
+leptos_i18n_router = { workspace = true }
 serde = { version = "1.0", features = ["derive"] }
 console_error_panic_hook = "0.1"
 rust_decimal = "1.37"
@@ -21,10 +25,23 @@ strum = "0.27"
 strum_macros = "0.27"
 reactive_stores = "0.2"
 uuid = { version = "1.17", features = ["js", "v4", "v7", "serde"] }
-leptos_router = "0.8"
+
+[package.metadata.leptos-i18n]
+default = "en"
+locales = ["en", "de"]
+inherits = { de = "en" }
 
 [workspace]
 members = ["src-tauri"]
+
+[workspace.dependencies]
+leptos_i18n = { version = "0.6.0-rc.2", features = ["csr"] }
+leptos_i18n_build = { version = "0.6.0-rc.2", features = ["pretty_print", "csr"] }
+leptos_i18n_router = { version = "0.6.0-rc.2" }
+
+[build-dependencies.leptos_i18n_build]
+workspace = true
+features = ["pretty_print", "csr"]
 
 [profile.dev]
 incremental = true
