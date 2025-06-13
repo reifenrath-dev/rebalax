@@ -25,15 +25,39 @@ pub fn Menu() -> impl IntoView {
 pub fn SwitchLang() -> impl IntoView {
     let i18n = use_i18n();
 
-    let on_switch = move |_| {
-        let new_lang = match i18n.get_locale() {
-            Locale::en => Locale::de,
-            Locale::de => Locale::en,
-        };
-        i18n.set_locale(new_lang);
-    };
-
     view! {
-        <button on:click=on_switch>{t!(i18n, click_to_change_lang)}</button>
+        <div class="language-options">
+            <b>{t!(i18n, language)}:</b>
+            <input
+                type="radio"
+                name="language"
+                id=format!("language-{}", Locale::en.to_string())
+                value=Locale::en.to_string()
+                checked=move || i18n.get_locale() == Locale::en
+                on:change=move |_| i18n.set_locale(Locale::en)
+                alt="English"
+            />
+            <label for=format!(
+                "language-{}",
+                Locale::en.to_string(),
+            )>
+                English
+            </label>
+            <input
+                type="radio"
+                name="language"
+                id=format!("language-{}", Locale::de.to_string())
+                value=Locale::de.to_string()
+                checked=move || i18n.get_locale() == Locale::de
+                on:change=move |_| i18n.set_locale(Locale::de)
+                alt="Deutsch"
+            />
+            <label for=format!(
+                "language-{}",
+                Locale::de.to_string(),
+            )>
+                Deutsch
+            </label>
+        </div>
     }
 }

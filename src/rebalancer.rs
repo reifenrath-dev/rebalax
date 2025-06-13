@@ -51,7 +51,7 @@ pub fn Rebalancer() -> impl IntoView {
     view! {
         <main>
             <section class="strategy">
-                <b>{t!(i18n, strategy)}</b>
+                <b>{t!(i18n, strategy)}:</b>
                 <div class="strategy-options">
                     {StrategyState::iter()
                         .map(|stra| {
@@ -63,6 +63,11 @@ pub fn Rebalancer() -> impl IntoView {
                                     value=stra.to_string()
                                     checked=move || strategy.get() == stra
                                     on:change=move |_| set_strategy.set(stra)
+                                    alt={match stra {
+                                        StrategyState::BuySell => t_string!(i18n, alt_buy_sell).to_string(),
+                                        StrategyState::Buy => t_string!(i18n, alt_buy).to_string(),
+                                        StrategyState::Sell => t_string!(i18n, alt_sell).to_string()
+                                    }}
                                 />
                                 <label for=format!(
                                     "strategy-{}",

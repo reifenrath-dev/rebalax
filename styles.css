@@ -132,6 +132,11 @@ button.remove-position {
   gap: 0.5rem;
   justify-content: flex-start;
 }
+.language-options {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
@@ -222,9 +227,6 @@ input[type="radio"] + label {
   cursor: pointer;
   display: inline-block;
   text-align: center;
-}
-input[type="radio"]#strategy-BuySell + label {
-  min-width: 75px;
 }
 input[type="radio"]:checked + label,
 input[type="radio"]:active + label {
