@@ -51,3 +51,9 @@ cargo tauri dev
 ```shell
 cargo tauri android build --apk --split-per-abi
 ```
+
+## Release
+
+1. Use the update-version.sh to update the versions of both Cargo.toml files and the tauri.conf.json.
+2. Merge the updated version via PR
+3. Push a new git tag with the same version number on main. This should trigger the release pipeline.
