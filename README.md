@@ -9,10 +9,14 @@
     <img src="assets/badge_github.png" height="80" align="center" alt="Get it on Github"/>
 </a>
 
+**Available languages:** english and german
+
 ## Screenshots
-<img width=30% src="assets/buy.png" alt="Screenshot 1"/>
-<img width=30% src="assets/buy-sell.png" alt="Screenshot 2"/>
-<img width=30% src="assets/sell.png" alt="Screenshot 3"/>
+<p float="left">
+    <img width=30% src="assets/buy.png" alt="Screenshot 1"/>
+    <img width=30% src="assets/buy-sell.png" alt="Screenshot 2"/>
+    <img width=30% src="assets/sell.png" alt="Screenshot 3"/>
+</p>
 
 ## App Verification Hash
 
