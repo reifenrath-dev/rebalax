@@ -63,20 +63,24 @@ pub fn Rebalancer() -> impl IntoView {
                                     value=stra.to_string()
                                     checked=move || strategy.get() == stra
                                     on:change=move |_| set_strategy.set(stra)
-                                    alt={match stra {
-                                        StrategyState::BuySell => t_string!(i18n, alt_buy_sell).to_string(),
+                                    alt=match stra {
+                                        StrategyState::BuySell => {
+                                            t_string!(i18n, alt_buy_sell).to_string()
+                                        }
                                         StrategyState::Buy => t_string!(i18n, alt_buy).to_string(),
-                                        StrategyState::Sell => t_string!(i18n, alt_sell).to_string()
-                                    }}
+                                        StrategyState::Sell => t_string!(i18n, alt_sell).to_string(),
+                                    }
                                 />
                                 <label for=format!(
                                     "strategy-{}",
                                     stra,
                                 )>
                                     {match stra {
-                                        StrategyState::BuySell => t_string!(i18n, buy_sell).to_string(),
+                                        StrategyState::BuySell => {
+                                            t_string!(i18n, buy_sell).to_string()
+                                        }
                                         StrategyState::Buy => t_string!(i18n, buy).to_string(),
-                                        StrategyState::Sell => t_string!(i18n, sell).to_string()
+                                        StrategyState::Sell => t_string!(i18n, sell).to_string(),
                                     }}
                                 </label>
                             }
@@ -125,7 +129,7 @@ pub fn Rebalancer() -> impl IntoView {
                                                     })
                                             }
                                         >
-                                            <DeleteIcon/>
+                                            <DeleteIcon />
                                         </button>
                                     </div>
                                 </td>
@@ -263,7 +267,7 @@ pub fn Rebalancer() -> impl IntoView {
                             })
                     }
                 >
-                    <AddIcon/>
+                    <AddIcon />
                 </button>
             </section>
 

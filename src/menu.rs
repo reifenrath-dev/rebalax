@@ -9,11 +9,23 @@ pub fn Menu() -> impl IntoView {
     view! {
         <main>
             <nav>
-                <a class="menu-item" href="https://github.com/reifenrath-dev/rebalax" target="_blank" rel="external">
-                    <GithubIcon/>{t!(i18n, source_code)}
+                <a
+                    class="menu-item"
+                    href="https://github.com/reifenrath-dev/rebalax"
+                    target="_blank"
+                    rel="external"
+                >
+                    <GithubIcon />
+                    {t!(i18n, source_code)}
                 </a>
-                <a class="menu-item" href="https://www.buymeacoffee.com/renereifenrath" target="_blank" rel="external">
-                    <DonateIcon/>{t!(i18n, donate)}
+                <a
+                    class="menu-item"
+                    href="https://www.buymeacoffee.com/renereifenrath"
+                    target="_blank"
+                    rel="external"
+                >
+                    <DonateIcon />
+                    {t!(i18n, donate)}
                 </a>
                 <SwitchLang />
             </nav>
@@ -37,12 +49,7 @@ pub fn SwitchLang() -> impl IntoView {
                 on:change=move |_| i18n.set_locale(Locale::en)
                 alt="English"
             />
-            <label for=format!(
-                "language-{}",
-                Locale::en.to_string(),
-            )>
-                English
-            </label>
+            <label for=format!("language-{}", Locale::en.to_string())>English</label>
             <input
                 type="radio"
                 name="language"
@@ -52,12 +59,7 @@ pub fn SwitchLang() -> impl IntoView {
                 on:change=move |_| i18n.set_locale(Locale::de)
                 alt="Deutsch"
             />
-            <label for=format!(
-                "language-{}",
-                Locale::de.to_string(),
-            )>
-                Deutsch
-            </label>
+            <label for=format!("language-{}", Locale::de.to_string())>Deutsch</label>
         </div>
     }
 }
