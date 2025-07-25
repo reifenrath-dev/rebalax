@@ -1,6 +1,5 @@
 /dist/
 /target/
-/Cargo.lock
 .vscode
 .idea
 /src-tauri/gen/android/keystore.properties
