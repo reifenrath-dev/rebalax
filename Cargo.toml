@@ -1,6 +1,6 @@
 [package]
 name = "rebalax-ui"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -24,7 +24,7 @@ codee = { version = "0.3", features = ["json_serde", "base64", "prost"] }
 strum = "0.27"
 strum_macros = "0.27"
 reactive_stores = "0.2"
-uuid = { version = "1.17", features = ["js", "v4", "v7", "serde"] }
+uuid = { version = "1.18", features = ["js", "v4", "v7", "serde"] }
 
 [package.metadata.leptos-i18n]
 default = "en"
