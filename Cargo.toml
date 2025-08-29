@@ -5,26 +5,26 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-leptos = { version = "0.8", features = ["csr"] }
-leptos_router = "0.8"
-leptos_meta = { version = "0.8" }
+leptos = { version = "0.8.8", features = ["csr"] }
+leptos_router = "0.8.6"
+leptos_meta = { version = "0.8.5" }
 leptos_i18n = { features = ["csr"], workspace = true }
 leptos_i18n_router = { workspace = true }
-serde = { version = "1.0", features = ["derive"] }
-console_error_panic_hook = "0.1"
-rust_decimal = "1.37"
-rust_decimal_macros = "1.37"
-leptos-use = { version = "0.16", default-features = false, features = [
+serde = { version = "1.0.219", features = ["derive"] }
+console_error_panic_hook = "0.1.7"
+rust_decimal = "1.37.2"
+rust_decimal_macros = "1.37.1"
+leptos-use = { version = "0.16.2", default-features = false, features = [
     "storage",
     "docs",
 ] }
-log = "0.4"
-console_log = "1.0"
-codee = { version = "0.3", features = ["json_serde", "base64", "prost"] }
-strum = "0.27"
-strum_macros = "0.27"
-reactive_stores = "0.2"
-uuid = { version = "1.18", features = ["js", "v4", "v7", "serde"] }
+log = "0.4.27"
+console_log = "1.0.0"
+codee = { version = "0.3.2", features = ["json_serde", "base64", "prost"] }
+strum = "0.27.2"
+strum_macros = "0.27.2"
+reactive_stores = "0.2.5"
+uuid = { version = "1.18.0", features = ["js", "v4", "v7", "serde"] }
 
 [package.metadata.leptos-i18n]
 default = "en"
