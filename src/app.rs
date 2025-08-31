@@ -13,26 +13,29 @@ pub fn App() -> impl IntoView {
     view! {
         <I18nContextProvider>
             <Router>
-                <div class="titlebar">
-                    <a class="titlebar-button" href="/">
-                        <img height=24 width=24 src="public/32x32.png" draggable="false" />
-                    </a>
-                    <a class="titlebar-button" href="/">
-                        <span class="titlebar-title">Rebalax</span>
-                    </a>
-                    <a
-                        class="titlebar-button"
-                        id="titlebar-menu"
-                        href=move || {
-                            if use_location().pathname.get().contains("menu") {
-                                "/"
-                            } else {
-                                "/menu"
+                <div id="titlebar-container">
+                    <div id="titlebar-spacer"></div>
+                    <div class="titlebar">
+                        <a class="titlebar-button" href="/">
+                            <img height=24 width=24 src="public/32x32.png" draggable="false" />
+                        </a>
+                        <a class="titlebar-button" href="/">
+                            <span class="titlebar-title">Rebalax</span>
+                        </a>
+                        <a
+                            class="titlebar-button"
+                            id="titlebar-menu"
+                            href=move || {
+                                if use_location().pathname.get().contains("menu") {
+                                    "/"
+                                } else {
+                                    "/menu"
+                                }
                             }
-                        }
-                    >
-                        <MenuIcon />
-                    </a>
+                        >
+                            <MenuIcon />
+                        </a>
+                    </div>
                 </div>
                 <Routes fallback=|| "Not found">
                     <I18nRoute<Locale, _, _> view=|| view! { <Outlet /> }>

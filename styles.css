@@ -27,32 +27,42 @@
   --padding-left: 10px;
   --border-radius: 8px;
   --titlebar-height: 40px;
+  --titlebar-spacer-height: 20px;
+  --titlebar-container-height: calc(var(--titlebar-height) + var(--titlebar-spacer-height));
 }
+
 body {
   margin: 10px;
 }
 
 main {
-  margin-top: 50px;
+  margin-top: calc(var(--titlebar-container-height) + 10px);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
+#titlebar-container {
+  background: linear-gradient(to bottom, var(--black), rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0));
+  top: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  z-index: 1;
+}
+
+#titlebar-spacer {
+  height: var(--titlebar-spacer-height);
+}
+
 .titlebar {
-  background: linear-gradient(to bottom, var(--black), transparent);
   height: var(--titlebar-height);
   justify-content: space-between;
   align-items: center;
   user-select: none;
   display: flex;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
   padding-left: var(--padding-left);
   padding-right: var(--padding-left);
-  z-index: 1;
 }
 .titlebar-button {
   display: inline-flex;
