@@ -27,24 +27,20 @@ pub fn Rebalancer() -> impl IntoView {
     let get_diff_string = |diff: Decimal| {
         if diff.is_zero() {
             view! { <span class="zero">{"".to_string()}</span> }
+        } else if diff.is_sign_positive() {
+            view! { <span class="positive">{format!(" +{}", diff)}</span> }
         } else {
-            if diff.is_sign_positive() {
-                view! { <span class="positive">{format!(" +{}", diff)}</span> }
-            } else {
-                view! { <span class="negative">{format!(" {}", diff)}</span> }
-            }
+            view! { <span class="negative">{format!(" {}", diff)}</span> }
         }
     };
 
     let get_diff_string_with_braces = |diff: Decimal| {
         if diff.is_zero() {
             view! { <span class="zero">{"".to_string()}</span> }
+        } else if diff.is_sign_positive() {
+            view! { <span class="positive">{format!(" (+{})", diff)}</span> }
         } else {
-            if diff.is_sign_positive() {
-                view! { <span class="positive">{format!(" (+{})", diff)}</span> }
-            } else {
-                view! { <span class="negative">{format!(" ({})", diff)}</span> }
-            }
+            view! { <span class="negative">{format!(" ({})", diff)}</span> }
         }
     };
 
@@ -92,7 +88,7 @@ pub fn Rebalancer() -> impl IntoView {
             <table>
                 <For
                     each=move || positions.get().rows.clone()
-                    key=|row| row.id.clone()
+                    key=|row| row.id
                     children=move |position| {
                         view! {
                             <tr>
@@ -166,12 +162,9 @@ pub fn Rebalancer() -> impl IntoView {
                                 <td class="number">
                                     <div class="number percentage">
                                         {move || {
-                                            format!(
-                                                "{}",
-                                                (positions.get().allocation_for(position.id) * dec!(100))
+                                            (positions.get().allocation_for(position.id) * dec!(100))
                                                     .round_dp(2)
-                                                    .to_string(),
-                                            )
+                                                    .to_string()
                                         }}
                                     </div>
                                 </td>
