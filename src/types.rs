@@ -7,7 +7,7 @@ use uuid::Uuid;
 
 #[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PositionsDataStore {
-    #[store(key: Uuid = |row| row.id.clone())]
+    #[store(key: Uuid = |row| row.id)]
     pub rows: Vec<PositionInputState>,
 }
 
@@ -78,18 +78,24 @@ impl PositionsDataStore {
 }
 
 #[derive(
-    Serialize, Deserialize, Clone, Copy, Debug, PartialEq, EnumString, Display, EnumIter, Hash, Eq,
+    Serialize,
+    Deserialize,
+    Clone,
+    Copy,
+    Debug,
+    PartialEq,
+    EnumString,
+    Display,
+    EnumIter,
+    Hash,
+    Eq,
+    Default,
 )]
 pub enum StrategyState {
+    #[default]
     Buy,
     BuySell,
     Sell,
-}
-
-impl Default for StrategyState {
-    fn default() -> Self {
-        StrategyState::Buy
-    }
 }
 
 #[derive(Clone)]
