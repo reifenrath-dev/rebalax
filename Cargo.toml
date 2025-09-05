@@ -24,7 +24,7 @@ codee = { version = "0.3.2", features = ["json_serde", "base64", "prost"] }
 strum = "0.27.2"
 strum_macros = "0.27.2"
 reactive_stores = "0.2.5"
-uuid = { version = "1.18.0", features = ["js", "v4", "v7", "serde"] }
+uuid = { version = "1.18.1", features = ["js", "v4", "v7", "serde"] }
 
 [package.metadata.leptos-i18n]
 default = "en"

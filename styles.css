@@ -27,7 +27,7 @@
   --padding-left: 10px;
   --border-radius: 8px;
   --titlebar-height: 40px;
-  --titlebar-spacer-height: 20px;
+  --titlebar-spacer-height: env(safe-area-inset-top);
   --titlebar-container-height: calc(var(--titlebar-height) + var(--titlebar-spacer-height));
 }
 
