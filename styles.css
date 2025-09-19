@@ -137,10 +137,16 @@ button.remove-position {
 }
 
 .strategy-options {
-  flex-grow: 1;
   display: flex;
+  flex-grow: 1;
   gap: 0.5rem;
-  justify-content: flex-start;
+}
+.strategy-options label:has(.active) {
+  flex: 2;
+  white-space: nowrap;
+}
+.strategy-options label:has(.in-active) {
+  flex: 1;
 }
 .language-options {
   display: flex;
@@ -239,7 +245,9 @@ input[type="radio"] + label {
   text-align: center;
 }
 input[type="radio"]:checked + label,
-input[type="radio"]:active + label {
+input[type="radio"]:checked + label svg,
+input[type="radio"]:active + label,
+input[type="radio"]:active + label svg {
   background-color: var(--main);
   color: var(--black);
 }
@@ -264,6 +272,9 @@ a {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+}
+input[type="radio"] + label {
+  height: 24px;
 }
 input[type="text"].title-input {
   border-radius: var(--border-radius) 0 0 0;

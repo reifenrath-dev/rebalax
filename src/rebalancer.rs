@@ -73,10 +73,38 @@ pub fn Rebalancer() -> impl IntoView {
                                 )>
                                     {match stra {
                                         StrategyState::BuySell => {
-                                            t_string!(i18n, buy_sell).to_string()
+                                            view! {
+                                                {move ||
+                                                    if strategy.get() == stra {
+                                                        view! {<span class="active">{t_string!(i18n, alt_buy_sell).to_string()}</span>}.into_any()
+                                                    }else{
+                                                        view!{<span class="in-active"><PlusMinusIcon/></span>}.into_any()
+                                                    }
+                                                }
+                                            }.into_any()
                                         }
-                                        StrategyState::Buy => t_string!(i18n, buy).to_string(),
-                                        StrategyState::Sell => t_string!(i18n, sell).to_string(),
+                                        StrategyState::Buy => {
+                                            view! {
+                                                {move ||
+                                                    if strategy.get() == stra {
+                                                        view! {<span class="active">{t_string!(i18n, alt_buy).to_string()}</span>}.into_any()
+                                                    }else{
+                                                        view!{<span class="in-active"><PlusIcon/></span>}.into_any()
+                                                    }
+                                                }
+                                            }.into_any()
+                                        }
+                                        StrategyState::Sell => {
+                                            view! {
+                                                {move ||
+                                                    if strategy.get() == stra {
+                                                        view! {<span class="active">{t_string!(i18n, alt_sell).to_string()}</span>}.into_any()
+                                                    }else{
+                                                        view!{<span class="in-active"><MinusIcon/></span>}.into_any()
+                                                    }
+                                                }
+                                            }.into_any()
+                                        }
                                     }}
                                 </label>
                             }
@@ -260,7 +288,7 @@ pub fn Rebalancer() -> impl IntoView {
                             })
                     }
                 >
-                    <AddIcon />
+                    <PlusIcon />
                 </button>
             </section>
 
