@@ -29,7 +29,7 @@ pub fn App() -> impl IntoView {
 pub fn TitleBar() -> impl IntoView {
     view! {
         <div id="titlebar-container">
-            <div id="titlebar-spacer"></div>
+            <div id="titlebar-spacer" />
             <div class="titlebar">
                 <a class="titlebar-button" href="/">
                     <img height=24 width=24 src="public/32x32.png" draggable="false" />

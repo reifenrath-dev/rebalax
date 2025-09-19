@@ -74,36 +74,69 @@ pub fn Rebalancer() -> impl IntoView {
                                     {match stra {
                                         StrategyState::BuySell => {
                                             view! {
-                                                {move ||
+                                                {move || {
                                                     if strategy.get() == stra {
-                                                        view! {<span class="active">{t_string!(i18n, alt_buy_sell).to_string()}</span>}.into_any()
-                                                    }else{
-                                                        view!{<span class="in-active"><PlusMinusIcon/></span>}.into_any()
+                                                        view! {
+                                                            <span class="active">
+                                                                {t_string!(i18n, alt_buy_sell).to_string()}
+                                                            </span>
+                                                        }
+                                                            .into_any()
+                                                    } else {
+                                                        view! {
+                                                            <span class="in-active">
+                                                                <PlusMinusIcon />
+                                                            </span>
+                                                        }
+                                                            .into_any()
                                                     }
-                                                }
-                                            }.into_any()
+                                                }}
+                                            }
+                                                .into_any()
                                         }
                                         StrategyState::Buy => {
                                             view! {
-                                                {move ||
+                                                {move || {
                                                     if strategy.get() == stra {
-                                                        view! {<span class="active">{t_string!(i18n, alt_buy).to_string()}</span>}.into_any()
-                                                    }else{
-                                                        view!{<span class="in-active"><PlusIcon/></span>}.into_any()
+                                                        view! {
+                                                            <span class="active">
+                                                                {t_string!(i18n, alt_buy).to_string()}
+                                                            </span>
+                                                        }
+                                                            .into_any()
+                                                    } else {
+                                                        view! {
+                                                            <span class="in-active">
+                                                                <PlusIcon />
+                                                            </span>
+                                                        }
+                                                            .into_any()
                                                     }
-                                                }
-                                            }.into_any()
+                                                }}
+                                            }
+                                                .into_any()
                                         }
                                         StrategyState::Sell => {
                                             view! {
-                                                {move ||
+                                                {move || {
                                                     if strategy.get() == stra {
-                                                        view! {<span class="active">{t_string!(i18n, alt_sell).to_string()}</span>}.into_any()
-                                                    }else{
-                                                        view!{<span class="in-active"><MinusIcon/></span>}.into_any()
+                                                        view! {
+                                                            <span class="active">
+                                                                {t_string!(i18n, alt_sell).to_string()}
+                                                            </span>
+                                                        }
+                                                            .into_any()
+                                                    } else {
+                                                        view! {
+                                                            <span class="in-active">
+                                                                <MinusIcon />
+                                                            </span>
+                                                        }
+                                                            .into_any()
                                                     }
-                                                }
-                                            }.into_any()
+                                                }}
+                                            }
+                                                .into_any()
                                         }
                                     }}
                                 </label>
@@ -191,8 +224,8 @@ pub fn Rebalancer() -> impl IntoView {
                                     <div class="number percentage">
                                         {move || {
                                             (positions.get().allocation_for(position.id) * dec!(100))
-                                                    .round_dp(2)
-                                                    .to_string()
+                                                .round_dp(2)
+                                                .to_string()
                                         }}
                                     </div>
                                 </td>
