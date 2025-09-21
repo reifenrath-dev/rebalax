@@ -329,22 +329,16 @@ pub fn Rebalancer() -> impl IntoView {
                 <b>{t!(i18n, total)}</b>
                 <span>
                     {move || {
-                        let diff = ((position_total()
+                        let diff = (position_total()
                             - (target_positions()
                                 .iter()
                                 .cloned()
-                                .fold(dec!(0), |acc, x| acc + x.value))) * dec!(-1))
-                            .round_dp(0);
+                                .fold(dec!(0), |acc, x| acc + x.value.round_dp(0)))) * dec!(-1);
                         if strategy.get() == StrategyState::BuySell
                             || !positions.get().is_valid_target_allocation()
                             || !positions.get().all_positions_above_zero() || diff == dec!(0)
                         {
-                            view! {
-                                {position_total().to_string()}
-                                {get_diff_string(dec!(0))}
-                                {"".to_string()}
-                                {"".to_string()}
-                            }
+                            view! {{position_total().to_string()}}.into_any()
                         } else {
                             view! {
                                 {position_total().to_string()}
@@ -353,10 +347,9 @@ pub fn Rebalancer() -> impl IntoView {
                                 {target_positions()
                                     .iter()
                                     .cloned()
-                                    .fold(dec!(0), |acc, x| acc + x.value)
-                                    .round_dp(0)
+                                    .fold(dec!(0), |acc, x| acc + x.value.round_dp(0))
                                     .to_string()}
-                            }
+                            }.into_any()
                         }
                     }}
                 </span>
