@@ -103,3 +103,126 @@ pub struct TargetPosition {
     pub id: Uuid,
     pub value: Decimal,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn is_valid_target_allocation_true() {
+        let sut = PositionsDataStore {
+            rows: vec![
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 1".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.70),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 2".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.28),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 3".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.0001),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 4".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.0199),
+                },
+            ],
+        };
+
+        assert!(sut.is_valid_target_allocation());
+    }
+
+    #[test]
+    fn is_valid_target_allocation_exceeds_100percent() {
+        let sut = PositionsDataStore {
+            rows: vec![
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 1".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.70),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 2".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.28),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 3".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.0002),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 4".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.0199),
+                },
+            ],
+        };
+
+        assert!(!sut.is_valid_target_allocation());
+    }
+
+    #[test]
+    fn is_valid_target_allocation_not_100percent() {
+        let sut = PositionsDataStore {
+            rows: vec![
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 1".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.70),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 2".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.28),
+                },
+            ],
+        };
+
+        assert!(!sut.is_valid_target_allocation());
+    }
+
+    #[test]
+    fn is_valid_target_allocation_negative_position() {
+        let sut = PositionsDataStore {
+            rows: vec![
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 1".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.70),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 2".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(0.30),
+                },
+                PositionInputState {
+                    id: Uuid::now_v7(),
+                    name: "Position 2".to_string(),
+                    current_position: dec!(0),
+                    target_allocation: dec!(-0.10),
+                },
+            ],
+        };
+
+        assert!(!sut.is_valid_target_allocation());
+    }
+}
