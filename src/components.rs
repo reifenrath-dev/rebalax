@@ -1,4 +1,5 @@
 use leptos::prelude::*;
+use rust_decimal::Decimal;
 
 #[component]
 pub fn MenuIcon() -> impl IntoView {
@@ -169,5 +170,26 @@ pub fn CloseIcon() -> impl IntoView {
             <path d="M18 6 6 18" />
             <path d="m6 6 12 12" />
         </svg>
+    }
+}
+
+#[component]
+pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
+    if diff.is_zero() {
+        view! { <span class="zero">{"".to_string()}</span> }
+    } else if diff.is_sign_positive() {
+        let fmt = if has_braces {
+            format!(" (+{})", diff)
+        } else {
+            format!(" +{}", diff)
+        };
+        view! { <span class="positive">{fmt}</span> }
+    } else {
+        let fmt = if has_braces {
+            format!(" ({})", diff)
+        } else {
+            format!(" {}", diff)
+        };
+        view! { <span class="negative">{fmt}</span> }
     }
 }
