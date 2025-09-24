@@ -1,4 +1,7 @@
+use crate::i18n::*;
+use crate::types::StrategyState;
 use leptos::prelude::*;
+use rust_decimal::Decimal;
 
 #[component]
 pub fn MenuIcon() -> impl IntoView {
@@ -169,5 +172,79 @@ pub fn CloseIcon() -> impl IntoView {
             <path d="M18 6 6 18" />
             <path d="m6 6 12 12" />
         </svg>
+    }
+}
+
+#[component]
+pub fn PrivacyIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-hat-glasses-icon lucide-hat-glasses"
+        >
+            <path d="M14 18a2 2 0 0 0-4 0" />
+            <path d="m19 11-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11" />
+            <path d="M2 11h20" />
+            <circle cx="17" cy="18" r="3" />
+            <circle cx="7" cy="18" r="3" />
+        </svg>
+    }
+}
+
+#[component]
+pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
+    if diff.is_zero() {
+        view! { <span class="zero">{"".to_string()}</span> }
+    } else if diff.is_sign_positive() {
+        let fmt = if has_braces {
+            format!(" (+{})", diff)
+        } else {
+            format!(" +{}", diff)
+        };
+        view! { <span class="positive">{fmt}</span> }
+    } else {
+        let fmt = if has_braces {
+            format!(" ({})", diff)
+        } else {
+            format!(" {}", diff)
+        };
+        view! { <span class="negative">{fmt}</span> }
+    }
+}
+
+#[component]
+pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
+    let i18n = use_i18n();
+
+    if active {
+        view! {
+            <span class="active">
+                {match strategy {
+                    StrategyState::Buy => t_string!(i18n, alt_buy),
+                    StrategyState::BuySell => t_string!(i18n, alt_buy_sell),
+                    StrategyState::Sell => t_string!(i18n, alt_sell),
+                }}
+            </span>
+        }
+        .into_any()
+    } else {
+        view! {
+            <span class="in-active">
+                {match strategy {
+                    StrategyState::Buy => view! { <PlusIcon /> }.into_any(),
+                    StrategyState::BuySell => view! { <PlusMinusIcon /> }.into_any(),
+                    StrategyState::Sell => view! { <MinusIcon /> }.into_any(),
+                }}
+            </span>
+        }
+        .into_any()
     }
 }

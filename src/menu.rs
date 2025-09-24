@@ -27,6 +27,15 @@ pub fn Menu() -> impl IntoView {
                     <DonateIcon />
                     {t!(i18n, donate)}
                 </a>
+                <a
+                    class="menu-item"
+                    href="https://link.reifenrath.dev/rebalax/privacy"
+                    target="_blank"
+                    rel="external"
+                >
+                    <PrivacyIcon />
+                    {t!(i18n, privacy)}
+                </a>
                 <SwitchLang />
             </nav>
         </main>
