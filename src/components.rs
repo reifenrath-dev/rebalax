@@ -1,3 +1,5 @@
+use crate::i18n::*;
+use crate::types::StrategyState;
 use leptos::prelude::*;
 use rust_decimal::Decimal;
 
@@ -215,5 +217,34 @@ pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
             format!(" {}", diff)
         };
         view! { <span class="negative">{fmt}</span> }
+    }
+}
+
+#[component]
+pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
+    let i18n = use_i18n();
+
+    if active {
+        view! {
+            <span class="active">
+                {match strategy {
+                    StrategyState::Buy => t_string!(i18n, alt_buy),
+                    StrategyState::BuySell => t_string!(i18n, alt_buy_sell),
+                    StrategyState::Sell => t_string!(i18n, alt_sell),
+                }}
+            </span>
+        }
+        .into_any()
+    } else {
+        view! {
+            <span class="in-active">
+                {match strategy {
+                    StrategyState::Buy => view! { <PlusIcon /> }.into_any(),
+                    StrategyState::BuySell => view! { <PlusMinusIcon /> }.into_any(),
+                    StrategyState::Sell => view! { <MinusIcon /> }.into_any(),
+                }}
+            </span>
+        }
+        .into_any()
     }
 }
