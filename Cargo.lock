@@ -4614,7 +4614,7 @@ dependencies = [
 
 [[package]]
 name = "rebalax"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "tauri",
  "tauri-build",
@@ -4623,7 +4623,7 @@ dependencies = [
 
 [[package]]
 name = "rebalax-ui"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "codee",
  "console_error_panic_hook",
