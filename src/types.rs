@@ -44,7 +44,6 @@ impl PositionsDataStore {
     pub fn is_valid_target_allocation(&self) -> bool {
         self.rows
             .iter()
-            .cloned()
             .map(|x| x.target_allocation)
             .sum::<Decimal>()
             == dec!(1)
@@ -92,9 +91,12 @@ impl PositionsDataStore {
     Default,
 )]
 pub enum StrategyState {
+    /// Readjust portfolio allocation only by buying additional funds
     #[default]
     Buy,
-    BuySell,
+    /// Readjust portfolio allocation without adding funds by shifting funds inside the portfolio
+    Reallocate,
+    /// Readjust portfolio allocation only by selling funds
     Sell,
 }
 
