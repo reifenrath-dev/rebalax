@@ -1,30 +1,27 @@
 [package]
 name = "rebalax-ui"
-version = "1.0.2"
+version = "1.0.3"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-leptos = { version = "0.8.17", features = ["csr"] }
+leptos = { version = "0.8.19", features = ["csr"] }
 leptos_router = "0.8.13"
 leptos_meta = { version = "0.8.6" }
 leptos_i18n = { features = ["csr"], workspace = true }
 leptos_i18n_router = { workspace = true }
 serde = { version = "1.0.228", features = ["derive"] }
 console_error_panic_hook = "0.1.7"
-rust_decimal = "1.41.0"
+rust_decimal = "1.42.0"
 rust_decimal_macros = "1.40.0"
-leptos-use = { version = "0.18.3", default-features = false, features = [
-    "storage",
-    "docs",
-] }
-log = "0.4.29"
+leptos-use = { version = "0.18.3", default-features = false, features = ["storage", "docs"] }
+log = "0.4.30"
 console_log = "1.0.0"
 codee = { version = "0.3.5", features = ["json_serde", "base64", "prost"] }
 strum = "0.28.0"
 strum_macros = "0.28.0"
-reactive_stores = "0.4.2"
-uuid = { version = "1.23.0", features = ["js", "v4", "v7", "serde"] }
+reactive_stores = "0.4.3"
+uuid = { version = "1.23.1", features = ["js", "v4", "v7", "serde"] }
 
 [package.metadata.leptos-i18n]
 default = "en"
@@ -35,9 +32,9 @@ inherits = { de = "en" }
 members = ["src-tauri"]
 
 [workspace.dependencies]
-leptos_i18n = { version = "0.6.1", features = ["csr"] }
-leptos_i18n_build = { version = "0.6.1", features = ["pretty_print", "csr"] }
-leptos_i18n_router = { version = "0.6.1" }
+leptos_i18n = { version = "0.6.2", features = ["csr"] }
+leptos_i18n_build = { version = "0.6.2", features = ["pretty_print", "csr"] }
+leptos_i18n_router = { version = "0.6.2" }
 
 [build-dependencies.leptos_i18n_build]
 workspace = true
