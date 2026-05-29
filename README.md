@@ -2,12 +2,18 @@
 
 [![publish-android](https://github.com/reifenrath-dev/rebalax/actions/workflows/android.yml/badge.svg)](https://github.com/reifenrath-dev/rebalax/actions/workflows/android.yml)
 
-<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/reifenrath-dev/rebalax">
-    <img src="assets/badge_obtainium.png" height="80" align="center" alt="Get it on Obtainium"/>
-</a>
-<a href="https://github.com/reifenrath-dev/rebalax/releases/latest">
-    <img src="assets/badge_github.png" height="80" align="center" alt="Get it on Github"/>
-</a>
+[<img src="assets/badge_obtainium.png"
+    width="200"
+    align="center"
+    alt="Get it on Obtainium">](https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/reifenrath-dev/rebalax)
+[<img src="assets/badge_github.png"
+    width="200"
+    align="center"
+    alt="Get it on Github">](https://github.com/reifenrath-dev/rebalax/releases/latest)
+[<img src="assets/badge_google-play.svg"
+    width="176"
+    align="center"
+    alt="Get it on Google Play">](https://play.google.com/store/apps/details?id=dev.reifenrath.rebalax)
 
 **Available languages:** english and german
 
