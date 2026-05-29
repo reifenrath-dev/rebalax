@@ -44,7 +44,6 @@ impl PositionsDataStore {
     pub fn is_valid_target_allocation(&self) -> bool {
         self.rows
             .iter()
-            .cloned()
             .map(|x| x.target_allocation)
             .sum::<Decimal>()
             == dec!(1)
