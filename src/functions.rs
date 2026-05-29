@@ -15,10 +15,10 @@ struct UnbalancedAsset {
 ///
 /// This function determines the optimal target positions for assets based on the provided
 /// strategy state and current position information. It handles three main strategy cases:
-/// Buy, Sell, and BuySell, each with different allocation logic.
+/// Buy, Sell, and Reallocate, each with different allocation logic.
 ///
 /// # Arguments
-/// * `strategy` - The current trading strategy state (Buy, Sell, or BuySell)
+/// * `strategy` - The current trading strategy state (Buy, Sell, or Reallocate)
 /// * `positions_store` - Container holding current position data and target allocations
 ///
 /// # Returns
@@ -30,7 +30,7 @@ struct UnbalancedAsset {
 ///    - Calculates asset allocations relative to total portfolio value
 ///    - Identifies the asset with the highest deviation from target allocation
 ///    - Scales all assets proportionally based on the most deviated asset
-/// 3. For BuySell strategy:
+/// 3. For Reallocate strategy:
 ///    - Directly scales target allocations by total portfolio value
 ///
 /// # Notes
@@ -93,7 +93,7 @@ pub fn get_target_assets(
                     })
                     .collect()
             }
-            StrategyState::BuySell => positions_store
+            StrategyState::Reallocate => positions_store
                 .rows
                 .iter()
                 .map(|position| TargetPosition {
@@ -434,7 +434,7 @@ mod tests {
         };
 
         // Act
-        let result = get_target_assets(StrategyState::BuySell, positions_store);
+        let result = get_target_assets(StrategyState::Reallocate, positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);

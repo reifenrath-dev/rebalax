@@ -91,9 +91,12 @@ impl PositionsDataStore {
     Default,
 )]
 pub enum StrategyState {
+    /// Readjust portfolio allocation only by buying additional funds
     #[default]
     Buy,
-    BuySell,
+    /// Readjust portfolio allocation without adding funds by shifting funds inside the portfolio
+    Reallocate,
+    /// Readjust portfolio allocation only by selling funds
     Sell,
 }
 

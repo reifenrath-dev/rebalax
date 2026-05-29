@@ -38,7 +38,7 @@ pub fn Rebalancer() -> impl IntoView {
                                 checked=move || strategy.get() == stra
                                 on:change=move |_| set_strategy.set(stra)
                                 alt=match stra {
-                                    StrategyState::BuySell => t_string!(i18n, alt_buy_sell),
+                                    StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
                                     StrategyState::Buy => t_string!(i18n, alt_buy),
                                     StrategyState::Sell => t_string!(i18n, alt_sell),
                                 }
@@ -253,7 +253,7 @@ pub fn Rebalancer() -> impl IntoView {
                 .cloned()
                 .fold(dec!(0), |acc, x| acc + x.value.round_dp(0))))
             * dec!(-1);
-        if strategy.get() == StrategyState::BuySell
+        if strategy.get() == StrategyState::Reallocate
             || !positions.get().is_valid_target_allocation()
             || !positions.get().all_positions_above_zero()
             || diff == dec!(0)

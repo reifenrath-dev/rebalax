@@ -229,7 +229,7 @@ pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
             <span class="active">
                 {match strategy {
                     StrategyState::Buy => t_string!(i18n, alt_buy),
-                    StrategyState::BuySell => t_string!(i18n, alt_buy_sell),
+                    StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
                     StrategyState::Sell => t_string!(i18n, alt_sell),
                 }}
             </span>
@@ -240,7 +240,7 @@ pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
             <span class="in-active">
                 {match strategy {
                     StrategyState::Buy => view! { <PlusIcon /> }.into_any(),
-                    StrategyState::BuySell => view! { <PlusMinusIcon /> }.into_any(),
+                    StrategyState::Reallocate => view! { <PlusMinusIcon /> }.into_any(),
                     StrategyState::Sell => view! { <MinusIcon /> }.into_any(),
                 }}
             </span>
