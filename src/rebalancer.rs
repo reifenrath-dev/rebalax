@@ -52,48 +52,44 @@ pub fn Rebalancer() -> impl IntoView {
                 key=|row| row.id
                 children=move |position| {
                     view! {
-                        <tr>
-                            <td colspan=3>
-                                <div class="join w-full flex">
-                                    <input
-                                        class="input join-item flex-grow"
-                                        type="text"
-                                        value=position.name
-                                        on:input=move |ev| {
-                                            let mut new_positions = positions.get().rows;
-                                            new_positions
-                                                .iter_mut()
-                                                .find(|x| x.id == position.id)
-                                                .unwrap()
-                                                .name = event_target_value(&ev).parse().unwrap();
-                                            set_positions
-                                                .set(PositionsDataStore {
-                                                    rows: new_positions,
-                                                })
-                                        }
-                                    />
-                                    <button
-                                        class="btn join-item"
-                                        on:click=move |_| {
-                                            set_positions
-                                                .update(|value| {
-                                                    let ix = value
-                                                        .rows
-                                                        .iter()
-                                                        .position(|x| x.id == position.id)
-                                                        .unwrap();
-                                                    value.rows.remove(ix);
-                                                })
-                                        }
-                                    >
-                                        <DeleteIcon />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{t_string!(i18n, current)}</td>
-                            <td>
+                        <PositionRow>
+                            <input
+                                class="input join-item flex-grow rounded-tl-lg"
+                                type="text"
+                                value=position.name
+                                on:input=move |ev| {
+                                    let mut new_positions = positions.get().rows;
+                                    new_positions
+                                        .iter_mut()
+                                        .find(|x| x.id == position.id)
+                                        .unwrap()
+                                        .name = event_target_value(&ev).parse().unwrap();
+                                    set_positions
+                                        .set(PositionsDataStore {
+                                            rows: new_positions,
+                                        })
+                                }
+                            />
+                            <button
+                                class="btn join-item rounded-tr-lg"
+                                on:click=move |_| {
+                                    set_positions
+                                        .update(|value| {
+                                            let ix = value
+                                                .rows
+                                                .iter()
+                                                .position(|x| x.id == position.id)
+                                                .unwrap();
+                                            value.rows.remove(ix);
+                                        })
+                                }
+                            >
+                                <DeleteIcon />
+                            </button>
+                        </PositionRow>
+                        <PositionRow>
+                            <RowLabel>{t_string!(i18n, current)}</RowLabel>
+                            <RowCell>
                                 <input
                                     class="input text-right"
                                     id=format!("{}-position-input", position.id)
@@ -121,8 +117,8 @@ pub fn Rebalancer() -> impl IntoView {
                                             })
                                     }
                                 />
-                            </td>
-                            <td>
+                            </RowCell>
+                            <RowCell>
                                 <div class="text-right">
                                     {move || {
                                         (positions.get().allocation_for(position.id) * dec!(100))
@@ -130,11 +126,11 @@ pub fn Rebalancer() -> impl IntoView {
                                             .to_string()
                                     }}
                                 </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{t_string!(i18n, target)}</td>
-                            <td>
+                            </RowCell>
+                        </PositionRow>
+                        <PositionRow>
+                            <RowLabel>{t_string!(i18n, target)}</RowLabel>
+                            <RowCell>
                                 <div class="text-right">
                                     {move || {
                                         target_positions()
@@ -161,10 +157,9 @@ pub fn Rebalancer() -> impl IntoView {
                                             .round_dp(0);
                                         view! { <DiffString diff has_braces=true /> }
                                     }}
-
                                 </div>
-                            </td>
-                            <td>
+                            </RowCell>
+                            <RowCell>
                                 <input
                                     id=format!("{}-target-input", position.id)
                                     min="0.01"
@@ -194,8 +189,8 @@ pub fn Rebalancer() -> impl IntoView {
                                             })
                                     }
                                 />
-                            </td>
-                        </tr>
+                            </RowCell>
+                        </PositionRow>
                     }
                 }
             />
@@ -205,7 +200,7 @@ pub fn Rebalancer() -> impl IntoView {
     let add_position_button = {
         view! {
             <button
-                class="add-position"
+                class="btn w-full rounded-b-lg"
                 on:click=move |_| {
                     let len = positions.get().rows.len();
                     set_positions
@@ -275,16 +270,31 @@ pub fn Rebalancer() -> impl IntoView {
     view! {
         <div class="fixed w-full flex justify-between ml-[-20px] p-[20px] z-100">{title_bar}</div>
         <main class="pt-[100px]">
-            <table class="w-full">{position_table_rows}</table>
+            <section>{position_table_rows}</section>
 
-            <section class="add-remove">{add_position_button}</section>
+            <section>{add_position_button}</section>
 
-            <section class="total">
-                <b>{t!(i18n, total)}</b>
+            <section class="flex mt-5">
+                <b class="grow">{t!(i18n, total)}</b>
                 <span>{total_calculation_string}</span>
             </section>
         </main>
     }
+}
+
+#[component]
+pub fn PositionRow(children: Children) -> impl IntoView {
+    view! { <div class="flex">{children()}</div> }
+}
+
+#[component]
+pub fn RowLabel(children: Children) -> impl IntoView {
+    view! { <div class="grow">{children()}</div> }
+}
+
+#[component]
+pub fn RowCell(children: Children) -> impl IntoView {
+    view! { <div class="flex-none w-[150px]">{children()}</div> }
 }
 
 #[component]
