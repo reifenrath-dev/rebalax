@@ -34,11 +34,9 @@ pub fn Rebalancer() -> impl IntoView {
                 <option disabled>Pick a Strategy</option>
                 {StrategyState::iter()
                     .map(|stra| {
-                        {
-                            move || {
-                                let active = strategy.get() == stra;
-                                view! { <StrategyOption strategy=stra active /> }
-                            }
+                        move || {
+                            let active = strategy.get() == stra;
+                            view! { <StrategyOption strategy=stra active /> }
                         }
                     })
                     .collect_view()}
