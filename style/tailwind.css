@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@source "../src/**/*.rs";
+
+@plugin "./daisyui.mjs" {
+    themes: dark --default;
+}
+
+/* Optional for custom themes – Docs: https://daisyui.com/docs/themes/#how-to-add-a-new-custom-theme */
+@plugin "./daisyui-theme.mjs" {
+    /* custom theme here */
+}
