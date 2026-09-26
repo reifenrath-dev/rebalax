@@ -231,17 +231,12 @@ pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
 
     if active {
         view! {
-            <option selected value={value}>
+            <option selected value=value>
                 {value}
             </option>
         }
         .into_any()
     } else {
-        view! {
-            <option value={value}>
-                {value}
-            </option>
-        }
-        .into_any()
+        view! { <option value=value>{value}</option> }.into_any()
     }
 }

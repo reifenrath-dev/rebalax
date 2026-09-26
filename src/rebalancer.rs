@@ -27,17 +27,19 @@ pub fn Rebalancer() -> impl IntoView {
     let strategy_options = {
         view! {
             <select
-            class="select"
-            on:change:target=move |ev| set_strategy.set(ev.target().value().parse().unwrap())
-            prop:value=move || strategy.get().to_string()
+                class="select"
+                on:change:target=move |ev| set_strategy.set(ev.target().value().parse().unwrap())
+                prop:value=move || strategy.get().to_string()
             >
                 <option disabled>Pick a Strategy</option>
                 {StrategyState::iter()
                     .map(|stra| {
-                        {move || {
-                            let active = strategy.get() == stra;
-                            view! { <StrategyOption strategy=stra active /> }
-                        }}
+                        {
+                            move || {
+                                let active = strategy.get() == stra;
+                                view! { <StrategyOption strategy=stra active /> }
+                            }
+                        }
                     })
                     .collect_view()}
             </select>
