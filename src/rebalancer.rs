@@ -31,7 +31,7 @@ pub fn Rebalancer() -> impl IntoView {
                 on:change:target=move |ev| set_strategy.set(ev.target().value().parse().unwrap())
                 prop:value=move || strategy.get().to_string()
             >
-                <option disabled>Pick a Strategy</option>
+                <option disabled>{t_string!(i18n, strategy)}</option>
                 {StrategyState::iter()
                     .map(|stra| {
                         move || {
@@ -262,7 +262,6 @@ pub fn Rebalancer() -> impl IntoView {
     view! {
         <main>
             <section class="strategy">
-                <b>{t!(i18n, strategy)}:</b>
                 {strategy_options}
             </section>
 
