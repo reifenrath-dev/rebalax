@@ -4,6 +4,7 @@ use crate::i18n::*;
 use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
+use leptos_router::hooks::use_location;
 use leptos_use::storage::use_local_storage;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
@@ -27,7 +28,7 @@ pub fn Rebalancer() -> impl IntoView {
     let strategy_options = {
         view! {
             <select
-                class="select"
+                class="select select-ghost w-min rounded-full"
                 on:change:target=move |ev| set_strategy.set(ev.target().value().parse().unwrap())
                 prop:value=move || strategy.get().to_string()
             >
@@ -259,12 +260,24 @@ pub fn Rebalancer() -> impl IntoView {
         }
     };
 
-    view! {
-        <main>
-            <section class="strategy">
+    let title_bar = view! {
+        <ul class="menu menu-horizontal bg-base-200 rounded-full">
+            <li>
                 {strategy_options}
-            </section>
+            </li>
+        </ul>
+        <ul class="menu menu-horizontal bg-base-200 rounded-full">
+            <li>
+                <SwitchMenuButton />
+            </li>
+        </ul>
+    };
 
+    view! {
+        <div class="fixed w-full flex justify-between p-[10px]">
+        {title_bar}
+        </div>
+        <main>
             <table>{position_table_rows}</table>
 
             <section class="add-remove">{add_position_button}</section>
@@ -274,5 +287,26 @@ pub fn Rebalancer() -> impl IntoView {
                 <span>{total_calculation_string}</span>
             </section>
         </main>
+    }
+}
+
+#[component]
+pub fn SwitchMenuButton() -> impl IntoView {
+    move || {
+        if use_location().pathname.get().contains("menu") {
+            view! {
+                <a href="/" class="rounded-full">
+                    <CloseIcon />
+                </a>
+            }
+            .into_any()
+        } else {
+            view! {
+                <a href="/menu" class="rounded-full">
+                    <MenuIcon />
+                </a>
+            }
+            .into_any()
+        }
     }
 }
