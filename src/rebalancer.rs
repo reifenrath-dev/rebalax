@@ -274,10 +274,10 @@ pub fn Rebalancer() -> impl IntoView {
     };
 
     view! {
-        <div class="fixed w-full flex justify-between p-[10px]">
-        {title_bar}
+        <div class="fixed w-full flex justify-between p-[10px] z-100">
+            {title_bar}
         </div>
-        <main>
+        <main class="pt-[100px]">
             <table>{position_table_rows}</table>
 
             <section class="add-remove">{add_position_button}</section>
