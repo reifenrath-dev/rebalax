@@ -36,7 +36,7 @@
     --radius-box: 1rem;
     --size-selector: 0.25rem;
     --size-field: 0.25rem;
-    --border: 1px;
+    --border: 0px;
     --depth: 0;
     --noise: 0;
 }

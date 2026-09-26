@@ -12,7 +12,7 @@ pub fn App() -> impl IntoView {
     view! {
         <I18nContextProvider>
             <Router>
-                <div class="bg-black">
+                <div class="bg-black w-full p-[20px]">
                     <Routes fallback=|| "Not found">
                         <I18nRoute<Locale, _, _> view=|| view! { <Outlet /> }>
                             <Route path=path!("/") view=Rebalancer />
