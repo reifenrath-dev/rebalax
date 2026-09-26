@@ -262,9 +262,7 @@ pub fn Rebalancer() -> impl IntoView {
 
     let title_bar = view! {
         <ul class="menu menu-horizontal bg-base-200 rounded-full">
-            <li>
-                {strategy_options}
-            </li>
+            <li>{strategy_options}</li>
         </ul>
         <ul class="menu menu-horizontal bg-base-200 rounded-full">
             <li>
@@ -274,9 +272,7 @@ pub fn Rebalancer() -> impl IntoView {
     };
 
     view! {
-        <div class="fixed w-full flex justify-between p-[10px] z-100">
-            {title_bar}
-        </div>
+        <div class="fixed w-full flex justify-between p-[10px] z-100">{title_bar}</div>
         <main class="pt-[100px]">
             <table>{position_table_rows}</table>
 

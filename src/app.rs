@@ -12,12 +12,14 @@ pub fn App() -> impl IntoView {
     view! {
         <I18nContextProvider>
             <Router>
-                <Routes fallback=|| "Not found">
-                    <I18nRoute<Locale, _, _> view=|| view! { <Outlet /> }>
-                        <Route path=path!("/") view=Rebalancer />
-                        <Route path=path!("/menu") view=Menu />
-                    </I18nRoute<Locale, _, _>>
-                </Routes>
+                <div class="bg-black">
+                    <Routes fallback=|| "Not found">
+                        <I18nRoute<Locale, _, _> view=|| view! { <Outlet /> }>
+                            <Route path=path!("/") view=Rebalancer />
+                            <Route path=path!("/menu") view=Menu />
+                        </I18nRoute<Locale, _, _>>
+                    </Routes>
+                </div>
             </Router>
         </I18nContextProvider>
     }
