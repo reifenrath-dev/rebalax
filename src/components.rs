@@ -209,14 +209,14 @@ pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
         } else {
             format!(" +{}", diff)
         };
-        view! { <span class="positive">{fmt}</span> }
+        view! { <span class="text-success">{fmt}</span> }
     } else {
         let fmt = if has_braces {
             format!(" ({})", diff)
         } else {
             format!(" {}", diff)
         };
-        view! { <span class="negative">{fmt}</span> }
+        view! { <span class="text-error">{fmt}</span> }
     }
 }
 

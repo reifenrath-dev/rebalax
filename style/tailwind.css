@@ -47,10 +47,16 @@ Source - https://stackoverflow.com/a/71297126
 Posted by Tyron, modified by community. See post 'Timeline' for change history
 Retrieved 2026-09-26, License - CC BY-SA 4.0
 */
-@layer base {
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input, label, select, option {
+    font-size: inherit;
+}
+
+:root {
+    background: black;
 }

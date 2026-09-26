@@ -89,7 +89,7 @@ pub fn Rebalancer() -> impl IntoView {
                         </PositionRow>
                         <PositionRow>
                             <RowLabel>{t_string!(i18n, current)}</RowLabel>
-                            <RowCell>
+                            <InputCell>
                                 <input
                                     class="input text-right"
                                     id=format!("{}-position-input", position.id)
@@ -117,20 +117,22 @@ pub fn Rebalancer() -> impl IntoView {
                                             })
                                     }
                                 />
-                            </RowCell>
-                            <RowCell>
+                            </InputCell>
+                            <DisplayCell>
                                 <div class="text-right">
                                     {move || {
-                                        (positions.get().allocation_for(position.id) * dec!(100))
-                                            .round_dp(2)
-                                            .to_string()
+                                        format!(
+                                            "{0} %",
+                                            (positions.get().allocation_for(position.id) * dec!(100))
+                                                .round_dp(2)
+                                        )
                                     }}
                                 </div>
-                            </RowCell>
+                            </DisplayCell>
                         </PositionRow>
                         <PositionRow>
                             <RowLabel>{t_string!(i18n, target)}</RowLabel>
-                            <RowCell>
+                            <DisplayCell>
                                 <div class="text-right">
                                     {move || {
                                         target_positions()
@@ -158,38 +160,41 @@ pub fn Rebalancer() -> impl IntoView {
                                         view! { <DiffString diff has_braces=true /> }
                                     }}
                                 </div>
-                            </RowCell>
-                            <RowCell>
-                                <input
-                                    id=format!("{}-target-input", position.id)
-                                    min="0.01"
-                                    max="100"
-                                    placeholder="..."
-                                    type="number"
-                                    class="input text-right"
-                                    value=if position.target_allocation.is_zero() {
-                                        "".to_string()
-                                    } else {
-                                        (position.target_allocation * dec!(100))
-                                            .round_dp(2)
-                                            .to_string()
-                                    }
-                                    on:input=move |ev| {
-                                        let mut new_positions = positions.get().rows;
-                                        new_positions
-                                            .iter_mut()
-                                            .find(|x| x.id == position.id)
-                                            .unwrap()
-                                            .target_allocation = event_target_value(&ev)
-                                            .parse::<Decimal>()
-                                            .unwrap_or(dec!(0)) / dec!(100);
-                                        set_positions
-                                            .set(PositionsDataStore {
-                                                rows: new_positions,
-                                            })
-                                    }
-                                />
-                            </RowCell>
+                            </DisplayCell>
+                            <InputCell>
+                                <label class="input text-right">
+                                    <input
+                                        id=format!("{}-target-input", position.id)
+                                        min="0.01"
+                                        max="100"
+                                        placeholder="..."
+                                        type="number"
+                                        class="grow text-right"
+                                        value=if position.target_allocation.is_zero() {
+                                            "".to_string()
+                                        } else {
+                                            (position.target_allocation * dec!(100))
+                                                .round_dp(2)
+                                                .to_string()
+                                        }
+                                        on:input=move |ev| {
+                                            let mut new_positions = positions.get().rows;
+                                            new_positions
+                                                .iter_mut()
+                                                .find(|x| x.id == position.id)
+                                                .unwrap()
+                                                .target_allocation = event_target_value(&ev)
+                                                .parse::<Decimal>()
+                                                .unwrap_or(dec!(0)) / dec!(100);
+                                            set_positions
+                                                .set(PositionsDataStore {
+                                                    rows: new_positions,
+                                                })
+                                        }
+                                    />
+                                    <span class="ml-[-4px]">%</span>
+                                </label>
+                            </InputCell>
                         </PositionRow>
                     }
                 }
@@ -284,16 +289,26 @@ pub fn Rebalancer() -> impl IntoView {
 
 #[component]
 pub fn PositionRow(children: Children) -> impl IntoView {
-    view! { <div class="flex">{children()}</div> }
+    view! { <div class="flex items-center h-[3rem]">{children()}</div> }
 }
 
 #[component]
 pub fn RowLabel(children: Children) -> impl IntoView {
-    view! { <div class="grow">{children()}</div> }
+    view! { <div class="grow px-[12px]">{children()}</div> }
 }
 
 #[component]
 pub fn RowCell(children: Children) -> impl IntoView {
+    view! { <div class="flex-none w-[150px]">{children()}</div> }
+}
+
+#[component]
+pub fn DisplayCell(children: Children) -> impl IntoView {
+    view! { <div class="flex-none w-[150px] px-[12px]">{children()}</div> }
+}
+
+#[component]
+pub fn InputCell(children: Children) -> impl IntoView {
     view! { <div class="flex-none w-[150px]">{children()}</div> }
 }
 
