@@ -53,10 +53,10 @@ pub fn Rebalancer() -> impl IntoView {
                 children=move |position| {
                     view! {
                         <tr>
-                            <td colspan=3 class="title">
-                                <div class="title-input-container">
+                            <td colspan=3>
+                                <div class="join w-full flex">
                                     <input
-                                        class="title-input"
+                                        class="input join-item flex-grow"
                                         type="text"
                                         value=position.name
                                         on:input=move |ev| {
@@ -73,7 +73,7 @@ pub fn Rebalancer() -> impl IntoView {
                                         }
                                     />
                                     <button
-                                        class="remove-position"
+                                        class="btn join-item"
                                         on:click=move |_| {
                                             set_positions
                                                 .update(|value| {
@@ -91,10 +91,11 @@ pub fn Rebalancer() -> impl IntoView {
                                 </div>
                             </td>
                         </tr>
-                        <tr class="current">
+                        <tr>
                             <td>{t_string!(i18n, current)}</td>
-                            <td class="number">
+                            <td>
                                 <input
+                                    class="input text-right"
                                     id=format!("{}-position-input", position.id)
                                     min="0"
                                     max="9999999"
@@ -121,8 +122,8 @@ pub fn Rebalancer() -> impl IntoView {
                                     }
                                 />
                             </td>
-                            <td class="number">
-                                <div class="number percentage">
+                            <td>
+                                <div class="text-right">
                                     {move || {
                                         (positions.get().allocation_for(position.id) * dec!(100))
                                             .round_dp(2)
@@ -131,10 +132,10 @@ pub fn Rebalancer() -> impl IntoView {
                                 </div>
                             </td>
                         </tr>
-                        <tr class="target">
+                        <tr>
                             <td>{t_string!(i18n, target)}</td>
-                            <td class="number">
-                                <div class="number">
+                            <td>
+                                <div class="text-right">
                                     {move || {
                                         target_positions()
                                             .iter()
@@ -163,14 +164,14 @@ pub fn Rebalancer() -> impl IntoView {
 
                                 </div>
                             </td>
-                            <td class="number">
+                            <td>
                                 <input
                                     id=format!("{}-target-input", position.id)
                                     min="0.01"
                                     max="100"
                                     placeholder="..."
                                     type="number"
-                                    class="percentage"
+                                    class="input text-right"
                                     value=if position.target_allocation.is_zero() {
                                         "".to_string()
                                     } else {
@@ -273,8 +274,8 @@ pub fn Rebalancer() -> impl IntoView {
 
     view! {
         <div class="fixed w-full flex justify-between p-[10px] z-100">{title_bar}</div>
-        <main class="pt-[100px]">
-            <table>{position_table_rows}</table>
+        <main class="pt-[100px] w-full">
+            <table class="w-full">{position_table_rows}</table>
 
             <section class="add-remove">{add_position_button}</section>
 
