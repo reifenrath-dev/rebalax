@@ -26,36 +26,21 @@ pub fn Rebalancer() -> impl IntoView {
 
     let strategy_options = {
         view! {
-            <div class="strategy-options">
+            <select
+            class="select"
+            on:change:target=move |ev| set_strategy.set(ev.target().value().parse().unwrap())
+            prop:value=move || strategy.get().to_string()
+            >
+                <option disabled>Pick a Strategy</option>
                 {StrategyState::iter()
                     .map(|stra| {
-                        view! {
-                            <input
-                                type="radio"
-                                name="strategy"
-                                id=format!("strategy-{}", stra)
-                                value=stra.to_string()
-                                checked=move || strategy.get() == stra
-                                on:change=move |_| set_strategy.set(stra)
-                                alt=match stra {
-                                    StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
-                                    StrategyState::Buy => t_string!(i18n, alt_buy),
-                                    StrategyState::Sell => t_string!(i18n, alt_sell),
-                                }
-                            />
-                            <label for=format!(
-                                "strategy-{}",
-                                stra,
-                            )>
-                                {move || {
-                                    let active = strategy.get() == stra;
-                                    view! { <StrategyOption strategy=stra active /> }
-                                }}
-                            </label>
-                        }
+                        {move || {
+                            let active = strategy.get() == stra;
+                            view! { <StrategyOption strategy=stra active /> }
+                        }}
                     })
                     .collect_view()}
-            </div>
+            </select>
         }
     };
 
