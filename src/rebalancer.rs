@@ -44,6 +44,30 @@ pub fn Rebalancer() -> impl IntoView {
         }
     };
 
+    let strategy_options_new = {
+        view! {
+            <div class="fab">
+                <div tabindex="0" role="button" class="btn btn-lg rounded-full flex">
+                    {move || format!("{}: {}", t_string!(i18n, strategy), strategy.get())}
+                </div>
+                {StrategyState::iter()
+                    .map(|stra| {
+                        move || {
+                            let active = strategy.get() == stra;
+                            view! {
+                                <StrategyButton
+                                    strategy=stra
+                                    active
+                                    on_click=move |_| set_strategy.set(stra)
+                                />
+                            }
+                        }
+                    })
+                    .collect_view()}
+            </div>
+        }
+    };
+
     let position_table_rows = {
         view! {
             <For
@@ -123,7 +147,7 @@ pub fn Rebalancer() -> impl IntoView {
                                         format!(
                                             "{} %",
                                             (positions.get().allocation_for(position.id) * dec!(100))
-                                                .round_dp(2)
+                                                .round_dp(2),
                                         )
                                     }}
                                 </div>
@@ -276,12 +300,14 @@ pub fn Rebalancer() -> impl IntoView {
         <main class="pt-[100px]">
             <section>{position_table_rows}</section>
 
-            <section>{add_position_button}</section>
+            <section class="pt-[5px]">{add_position_button}</section>
 
             <section class="flex mt-5">
                 <b class="grow">{t!(i18n, total)}</b>
                 <span>{total_calculation_string}</span>
             </section>
+
+            {strategy_options_new}
         </main>
     }
 }
@@ -294,11 +320,6 @@ pub fn PositionRow(children: Children) -> impl IntoView {
 #[component]
 pub fn RowLabel(children: Children) -> impl IntoView {
     view! { <div class="grow px-[12px]">{children()}</div> }
-}
-
-#[component]
-pub fn RowCell(children: Children) -> impl IntoView {
-    view! { <div class="flex-none w-[150px]">{children()}</div> }
 }
 
 #[component]

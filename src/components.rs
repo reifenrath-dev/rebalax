@@ -1,5 +1,6 @@
 use crate::i18n::*;
 use crate::types::StrategyState;
+use leptos::ev::MouseEvent;
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 use rust_decimal::Decimal;
@@ -239,6 +240,36 @@ pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
         .into_any()
     } else {
         view! { <option value=value>{value}</option> }.into_any()
+    }
+}
+
+#[component]
+pub fn StrategyButton(
+    strategy: StrategyState,
+    active: bool,
+    on_click: impl FnMut(MouseEvent) + 'static,
+) -> impl IntoView {
+    let i18n = use_i18n();
+    let value = match strategy {
+        StrategyState::Buy => t_string!(i18n, alt_buy),
+        StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
+        StrategyState::Sell => t_string!(i18n, alt_sell),
+    };
+
+    if active {
+        view! {
+            <button disabled class="btn bg-base-100 rounded-full" value=value>
+                {value}
+            </button>
+        }
+        .into_any()
+    } else {
+        view! {
+            <button value=value class="btn rounded-full" on:click=on_click>
+                {value}
+            </button>
+        }
+        .into_any()
     }
 }
 

@@ -51,7 +51,7 @@ pub fn Menu() -> impl IntoView {
                         </a>
                     </li>
                 </ul>
-                    <SwitchLang />
+                <SwitchLang />
             </div>
         </main>
     }
@@ -66,7 +66,9 @@ pub fn SwitchLang() -> impl IntoView {
             <b>{t!(i18n, language)}:</b>
             <ul class="list">
                 <li class="list-row flex">
-                    <label class="grow" for=format!("language-{}", Locale::en.to_string())>English</label>
+                    <label class="grow" for=format!("language-{}", Locale::en.to_string())>
+                        English
+                    </label>
                     <input
                         type="radio"
                         class="radio"
@@ -78,7 +80,9 @@ pub fn SwitchLang() -> impl IntoView {
                     />
                 </li>
                 <li class="list-row flex">
-                    <label class="grow" for=format!("language-{}", Locale::de.to_string())>Deutsch</label>
+                    <label class="grow" for=format!("language-{}", Locale::de.to_string())>
+                        Deutsch
+                    </label>
                     <input
                         type="radio"
                         class="radio"
