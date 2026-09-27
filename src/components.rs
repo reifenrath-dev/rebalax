@@ -1,6 +1,7 @@
 use crate::i18n::*;
 use crate::types::StrategyState;
 use leptos::prelude::*;
+use leptos_router::hooks::use_location;
 use rust_decimal::Decimal;
 
 #[component]
@@ -238,5 +239,33 @@ pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
         .into_any()
     } else {
         view! { <option value=value>{value}</option> }.into_any()
+    }
+}
+
+#[component]
+pub fn TitleBar(children: Children) -> impl IntoView {
+    view! {
+        <div class="fixed w-full flex justify-between ml-[-20px] p-[20px] z-100">{children()}</div>
+    }
+}
+
+#[component]
+pub fn SwitchMenuButton() -> impl IntoView {
+    move || {
+        if use_location().pathname.get().contains("menu") {
+            view! {
+                <a href="/" class="rounded-full">
+                    <CloseIcon />
+                </a>
+            }
+            .into_any()
+        } else {
+            view! {
+                <a href="/menu" class="rounded-full">
+                    <MenuIcon />
+                </a>
+            }
+            .into_any()
+        }
     }
 }

@@ -4,7 +4,6 @@ use crate::i18n::*;
 use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
-use leptos_router::hooks::use_location;
 use leptos_use::storage::use_local_storage;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
@@ -122,7 +121,7 @@ pub fn Rebalancer() -> impl IntoView {
                                 <div class="text-right">
                                     {move || {
                                         format!(
-                                            "{0} %",
+                                            "{} %",
                                             (positions.get().allocation_for(position.id) * dec!(100))
                                                 .round_dp(2)
                                         )
@@ -273,7 +272,7 @@ pub fn Rebalancer() -> impl IntoView {
     };
 
     view! {
-        <div class="fixed w-full flex justify-between ml-[-20px] p-[20px] z-100">{title_bar}</div>
+        <TitleBar>{title_bar}</TitleBar>
         <main class="pt-[100px]">
             <section>{position_table_rows}</section>
 
@@ -310,25 +309,4 @@ pub fn DisplayCell(children: Children) -> impl IntoView {
 #[component]
 pub fn InputCell(children: Children) -> impl IntoView {
     view! { <div class="flex-none w-[150px]">{children()}</div> }
-}
-
-#[component]
-pub fn SwitchMenuButton() -> impl IntoView {
-    move || {
-        if use_location().pathname.get().contains("menu") {
-            view! {
-                <a href="/" class="rounded-full">
-                    <CloseIcon />
-                </a>
-            }
-            .into_any()
-        } else {
-            view! {
-                <a href="/menu" class="rounded-full">
-                    <MenuIcon />
-                </a>
-            }
-            .into_any()
-        }
-    }
 }
