@@ -275,9 +275,7 @@ pub fn StrategyButton(
 
 #[component]
 pub fn TitleBar(children: Children) -> impl IntoView {
-    view! {
-        <div class="fixed w-full flex justify-between ml-[-20px] p-[20px] z-100">{children()}</div>
-    }
+    view! { <div class="fixed w-full ml-[-20px] p-[20px] z-100">{children()}</div> }
 }
 
 #[component]
@@ -285,14 +283,14 @@ pub fn SwitchMenuButton() -> impl IntoView {
     move || {
         if use_location().pathname.get().contains("menu") {
             view! {
-                <a href="/" class="rounded-full">
+                <a href="/" class="btn rounded-full">
                     <CloseIcon />
                 </a>
             }
             .into_any()
         } else {
             view! {
-                <a href="/menu" class="rounded-full">
+                <a href="/menu" class="btn rounded-full">
                     <MenuIcon />
                 </a>
             }

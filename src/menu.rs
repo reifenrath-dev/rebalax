@@ -8,52 +8,36 @@ pub fn Menu() -> impl IntoView {
 
     view! {
         <main>
-            <div class="fixed w-full ml-[-20px] p-[20px] z-100">
-                <ul class="menu menu-horizontal bg-base-200 rounded-full float-right">
-                    <li>
-                        <SwitchMenuButton />
-                    </li>
-                </ul>
-            </div>
-            <div class="pt-[100px]">
-                <ul class="menu w-full bg-base-100 rounded-lg">
-                    <li>
-                        <a
-                            class="menu-item"
-                            href="https://github.com/reifenrath-dev/rebalax"
-                            target="_blank"
-                            rel="external"
-                        >
-                            <GithubIcon />
-                            {t!(i18n, source_code)}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="menu-item"
-                            href="https://www.buymeacoffee.com/renereifenrath"
-                            target="_blank"
-                            rel="external"
-                        >
-                            <DonateIcon />
-                            {t!(i18n, donate)}
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            class="menu-item"
-                            href="https://link.reifenrath.dev/rebalax/privacy"
-                            target="_blank"
-                            rel="external"
-                        >
-                            <PrivacyIcon />
-                            {t!(i18n, privacy)}
-                        </a>
-                    </li>
-                </ul>
+            <TitleBar>
+                <div class="float-right">
+                    <SwitchMenuButton />
+                </div>
+            </TitleBar>
+            <div class="pt-[100px] flex flex-col gap-4">
+                <MenuItem href="https://github.com/reifenrath-dev/rebalax">
+                    <GithubIcon />
+                    {t!(i18n, source_code)}
+                </MenuItem>
+                <MenuItem href="https://www.buymeacoffee.com/renereifenrath">
+                    <DonateIcon />
+                    {t!(i18n, donate)}
+                </MenuItem>
+                <MenuItem href="https://link.reifenrath.dev/rebalax/privacy">
+                    <PrivacyIcon />
+                    {t!(i18n, privacy)}
+                </MenuItem>
                 <SwitchLang />
             </div>
         </main>
+    }
+}
+
+#[component]
+pub fn MenuItem(href: &'static str, children: Children) -> impl IntoView {
+    view! {
+        <a class="btn" href=href target="_blank" rel="external">
+            {children()}
+        </a>
     }
 }
 

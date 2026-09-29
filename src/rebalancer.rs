@@ -284,19 +284,12 @@ pub fn Rebalancer() -> impl IntoView {
         }
     };
 
-    let title_bar = view! {
-        <ul class="menu menu-horizontal bg-base-200 rounded-full">
-            <li>{strategy_options}</li>
-        </ul>
-        <ul class="menu menu-horizontal bg-base-200 rounded-full">
-            <li>
-                <SwitchMenuButton />
-            </li>
-        </ul>
-    };
-
     view! {
-        <TitleBar>{title_bar}</TitleBar>
+        <TitleBar>
+            <div class="float-right">
+                <SwitchMenuButton />
+            </div>
+        </TitleBar>
         <main class="pt-[100px]">
             <section>{position_table_rows}</section>
 
