@@ -223,27 +223,6 @@ pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
 }
 
 #[component]
-pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
-    let i18n = use_i18n();
-    let value = match strategy {
-        StrategyState::Buy => t_string!(i18n, alt_buy),
-        StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
-        StrategyState::Sell => t_string!(i18n, alt_sell),
-    };
-
-    if active {
-        view! {
-            <option selected value=value>
-                {value}
-            </option>
-        }
-        .into_any()
-    } else {
-        view! { <option value=value>{value}</option> }.into_any()
-    }
-}
-
-#[component]
 pub fn StrategyButton(
     strategy: StrategyState,
     active: bool,

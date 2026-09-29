@@ -26,26 +26,6 @@ pub fn Rebalancer() -> impl IntoView {
 
     let strategy_options = {
         view! {
-            <select
-                class="select select-ghost w-min rounded-full"
-                on:change:target=move |ev| set_strategy.set(ev.target().value().parse().unwrap())
-                prop:value=move || strategy.get().to_string()
-            >
-                <option disabled>{t_string!(i18n, strategy)}</option>
-                {StrategyState::iter()
-                    .map(|stra| {
-                        move || {
-                            let active = strategy.get() == stra;
-                            view! { <StrategyOption strategy=stra active /> }
-                        }
-                    })
-                    .collect_view()}
-            </select>
-        }
-    };
-
-    let strategy_options_new = {
-        view! {
             <div class="fab">
                 <div tabindex="0" role="button" class="btn btn-lg rounded-full flex">
                     {move || format!("{}: {}", t_string!(i18n, strategy), strategy.get())}
@@ -81,7 +61,8 @@ pub fn Rebalancer() -> impl IntoView {
                                 type="text"
                                 value=position.name
                                 on:input=move |ev| {
-                                    let mut new_positions = positions.get().rows;
+                                    let current_positions = positions.get();
+                                    let mut new_positions = current_positions.rows;
                                     new_positions
                                         .iter_mut()
                                         .find(|x| x.id == position.id)
@@ -89,6 +70,8 @@ pub fn Rebalancer() -> impl IntoView {
                                         .name = event_target_value(&ev).parse().unwrap();
                                     set_positions
                                         .set(PositionsDataStore {
+                                            id: current_positions.id,
+                                            name: current_positions.name,
                                             rows: new_positions,
                                         })
                                 }
@@ -126,7 +109,8 @@ pub fn Rebalancer() -> impl IntoView {
                                         position.current_position.round_dp(0).to_string()
                                     }
                                     on:input=move |ev| {
-                                        let mut new_positions = positions.get().rows;
+                                        let current_positions = positions.get();
+                                        let mut new_positions = current_positions.rows;
                                         new_positions
                                             .iter_mut()
                                             .find(|x| x.id == position.id)
@@ -136,6 +120,8 @@ pub fn Rebalancer() -> impl IntoView {
                                             .unwrap_or(dec!(0));
                                         set_positions
                                             .set(PositionsDataStore {
+                                                id: current_positions.id,
+                                                name: current_positions.name,
                                                 rows: new_positions,
                                             })
                                     }
@@ -201,7 +187,8 @@ pub fn Rebalancer() -> impl IntoView {
                                                 .to_string()
                                         }
                                         on:input=move |ev| {
-                                            let mut new_positions = positions.get().rows;
+                                            let current_positions = positions.get();
+                                            let mut new_positions = current_positions.rows;
                                             new_positions
                                                 .iter_mut()
                                                 .find(|x| x.id == position.id)
@@ -211,6 +198,8 @@ pub fn Rebalancer() -> impl IntoView {
                                                 .unwrap_or(dec!(0)) / dec!(100);
                                             set_positions
                                                 .set(PositionsDataStore {
+                                                    id: current_positions.id,
+                                                    name: current_positions.name,
                                                     rows: new_positions,
                                                 })
                                         }
@@ -230,10 +219,13 @@ pub fn Rebalancer() -> impl IntoView {
             <button
                 class="btn w-full rounded-b-lg"
                 on:click=move |_| {
-                    let len = positions.get().rows.len();
+                    let current_positions = positions.get();
+                    let len = current_positions.rows.len();
                     set_positions
                         .update(|value| {
                             *value = PositionsDataStore {
+                                id: current_positions.id,
+                                name: current_positions.name,
                                 rows: value
                                     .rows
                                     .iter()
@@ -286,6 +278,16 @@ pub fn Rebalancer() -> impl IntoView {
 
     view! {
         <TitleBar>
+            <input
+                type="text"
+                class="input rounded-full font-bold"
+                value=positions.get().name
+                on:input=move |ev| {
+                    let mut new_positions = positions.get();
+                    new_positions.name = event_target_value(&ev).parse().unwrap();
+                    set_positions.set(new_positions.clone())
+                }
+            />
             <div class="float-right">
                 <SwitchMenuButton />
             </div>
@@ -300,7 +302,7 @@ pub fn Rebalancer() -> impl IntoView {
                 <span>{total_calculation_string}</span>
             </section>
 
-            {strategy_options_new}
+            {strategy_options}
         </main>
     }
 }
