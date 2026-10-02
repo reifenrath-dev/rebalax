@@ -58,4 +58,8 @@ input, label, select, option {
 
 :root {
     background: black;
+    margin-top: env(safe-area-max-inset-top);
+    margin-right: env(safe-area-max-inset-right);
+    margin-bottom: env(safe-area-max-inset-bottom);
+    margin-left: env(safe-area-max-inset-left);
 }

@@ -277,10 +277,10 @@ pub fn Rebalancer() -> impl IntoView {
     };
 
     view! {
-        <TitleBar>
+        <div class="fixed w-full ml-[-20px] p-[20px] z-100 flex gap-2">
             <input
                 type="text"
-                class="input rounded-full font-bold"
+                class="input rounded-full font-bold grow"
                 value=positions.get().name
                 on:input=move |ev| {
                     let mut new_positions = positions.get();
@@ -288,10 +288,8 @@ pub fn Rebalancer() -> impl IntoView {
                     set_positions.set(new_positions.clone())
                 }
             />
-            <div class="float-right">
-                <SwitchMenuButton />
-            </div>
-        </TitleBar>
+            <SwitchMenuButton />
+        </div>
         <main class="pt-[100px]">
             <section>{position_table_rows}</section>
 
