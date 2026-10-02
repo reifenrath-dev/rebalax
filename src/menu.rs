@@ -59,6 +59,7 @@ pub fn SwitchLang() -> impl IntoView {
                         name="language"
                         id=format!("language-{}", Locale::en.to_string())
                         value=Locale::en.to_string()
+                        checked=move || i18n.get_locale() == Locale::en
                         on:change=move |_| i18n.set_locale(Locale::en)
                         alt="English"
                     />
