@@ -117,6 +117,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -159,6 +161,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -201,6 +205,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -243,6 +249,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -285,6 +293,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -327,6 +337,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -369,6 +381,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,
@@ -411,6 +425,8 @@ mod tests {
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
         let positions_store = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: first_id,

@@ -7,6 +7,8 @@ use uuid::Uuid;
 
 #[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PositionsDataStore {
+    pub id: Uuid,
+    pub name: String,
     #[store(key: Uuid = |row| row.id)]
     pub rows: Vec<PositionInputState>,
 }
@@ -14,6 +16,8 @@ pub struct PositionsDataStore {
 impl Default for PositionsDataStore {
     fn default() -> Self {
         Self {
+            id: Uuid::now_v7(),
+            name: "My First Portfolio".to_string(),
             rows: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
@@ -113,6 +117,8 @@ mod tests {
     #[test]
     fn is_valid_target_allocation_true() {
         let sut = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
@@ -147,6 +153,8 @@ mod tests {
     #[test]
     fn is_valid_target_allocation_exceeds_100percent() {
         let sut = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
@@ -181,6 +189,8 @@ mod tests {
     #[test]
     fn is_valid_target_allocation_not_100percent() {
         let sut = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
@@ -203,6 +213,8 @@ mod tests {
     #[test]
     fn is_valid_target_allocation_negative_position() {
         let sut = PositionsDataStore {
+            id: Uuid::now_v7(),
+            name: "Portfolio 1".to_string(),
             rows: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),

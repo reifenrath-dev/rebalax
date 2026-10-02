@@ -1,6 +1,8 @@
 use crate::i18n::*;
 use crate::types::StrategyState;
+use leptos::ev::MouseEvent;
 use leptos::prelude::*;
+use leptos_router::hooks::use_location;
 use rust_decimal::Decimal;
 
 #[component]
@@ -200,6 +202,31 @@ pub fn PrivacyIcon() -> impl IntoView {
 }
 
 #[component]
+pub fn LanguageIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-languages preview-icon"
+        >
+            <path d="m5 8 6 6" />
+            <path d="m4 14 6-6 2-3" />
+            <path d="M2 5h12" />
+            <path d="M7 2h1" />
+            <path d="m22 22-5-10-5 10" />
+            <path d="M14 18h6" />
+        </svg>
+    }
+}
+
+#[component]
 pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
     if diff.is_zero() {
         view! { <span class="zero">{"".to_string()}</span> }
@@ -209,42 +236,146 @@ pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
         } else {
             format!(" +{}", diff)
         };
-        view! { <span class="positive">{fmt}</span> }
+        view! { <span class="text-success">{fmt}</span> }
     } else {
         let fmt = if has_braces {
             format!(" ({})", diff)
         } else {
             format!(" {}", diff)
         };
-        view! { <span class="negative">{fmt}</span> }
+        view! { <span class="text-error">{fmt}</span> }
     }
 }
 
 #[component]
-pub fn StrategyOption(strategy: StrategyState, active: bool) -> impl IntoView {
+pub fn StrategyButton(
+    strategy: StrategyState,
+    active: bool,
+    on_click: impl FnMut(MouseEvent) + 'static,
+) -> impl IntoView {
     let i18n = use_i18n();
+    let value = match strategy {
+        StrategyState::Buy => t!(i18n, alt_buy).into_any(),
+        StrategyState::Reallocate => t!(i18n, alt_buy_sell).into_any(),
+        StrategyState::Sell => t!(i18n, alt_sell).into_any(),
+    };
 
     if active {
         view! {
-            <span class="active">
-                {match strategy {
-                    StrategyState::Buy => t_string!(i18n, alt_buy),
-                    StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
-                    StrategyState::Sell => t_string!(i18n, alt_sell),
-                }}
-            </span>
+            <button disabled class="btn bg-base-100 rounded-full">
+                {value}
+                <StrategyIcon strategy=strategy />
+            </button>
         }
         .into_any()
     } else {
         view! {
-            <span class="in-active">
-                {match strategy {
-                    StrategyState::Buy => view! { <PlusIcon /> }.into_any(),
-                    StrategyState::Reallocate => view! { <PlusMinusIcon /> }.into_any(),
-                    StrategyState::Sell => view! { <MinusIcon /> }.into_any(),
-                }}
-            </span>
+            <button class="btn rounded-full" on:click=on_click>
+                {value}
+                <StrategyIcon strategy=strategy />
+            </button>
         }
         .into_any()
+    }
+}
+
+#[component]
+pub fn TitleBar(children: Children) -> impl IntoView {
+    view! { <div class="fixed w-full ml-[-20px] p-[20px] z-100">{children()}</div> }
+}
+
+#[component]
+pub fn SwitchMenuButton() -> impl IntoView {
+    move || {
+        if use_location().pathname.get().contains("menu") {
+            view! {
+                <a href="/" class="btn rounded-full">
+                    <CloseIcon />
+                </a>
+            }
+            .into_any()
+        } else {
+            view! {
+                <a href="/menu" class="btn rounded-full">
+                    <MenuIcon />
+                </a>
+            }
+            .into_any()
+        }
+    }
+}
+
+#[component]
+pub fn StrategyIcon(strategy: StrategyState) -> impl IntoView {
+    match strategy {
+        StrategyState::Buy => view! { <BuyIcon /> }.into_any(),
+        StrategyState::Reallocate => view! { <ReallocateIcon /> }.into_any(),
+        StrategyState::Sell => view! { <SellIcon /> }.into_any(),
+    }
+}
+
+#[component]
+pub fn BuyIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-circle-plus preview-icon text-success"
+        >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 12h8" />
+            <path d="M12 8v8" />
+        </svg>
+    }
+}
+
+#[component]
+pub fn ReallocateIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-refresh-cw preview-icon text-warning"
+        >
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+        </svg>
+    }
+}
+
+#[component]
+pub fn SellIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-circle-minus preview-icon text-error"
+        >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 12h8" />
+        </svg>
     }
 }
