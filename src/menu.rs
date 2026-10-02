@@ -35,7 +35,7 @@ pub fn Menu() -> impl IntoView {
 #[component]
 pub fn MenuItem(href: &'static str, children: Children) -> impl IntoView {
     view! {
-        <a class="btn" href=href target="_blank" rel="external">
+        <a class="btn justify-start" href=href target="_blank" rel="external">
             {children()}
         </a>
     }
@@ -46,40 +46,38 @@ pub fn SwitchLang() -> impl IntoView {
     let i18n = use_i18n();
 
     view! {
-        <div class="p-[20px]">
-            <b>{t!(i18n, language)}:</b>
-            <ul class="list">
-                <li class="list-row flex">
-                    <label class="grow" for=format!("language-{}", Locale::en.to_string())>
-                        English
-                    </label>
-                    <input
-                        type="radio"
-                        class="radio"
-                        name="language"
-                        id=format!("language-{}", Locale::en.to_string())
-                        value=Locale::en.to_string()
-                        checked=move || i18n.get_locale() == Locale::en
-                        on:change=move |_| i18n.set_locale(Locale::en)
-                        alt="English"
-                    />
-                </li>
-                <li class="list-row flex">
-                    <label class="grow" for=format!("language-{}", Locale::de.to_string())>
-                        Deutsch
-                    </label>
-                    <input
-                        type="radio"
-                        class="radio"
-                        name="language"
-                        id=format!("language-{}", Locale::de.to_string())
-                        value=Locale::de.to_string()
-                        checked=move || i18n.get_locale() == Locale::de
-                        on:change=move |_| i18n.set_locale(Locale::de)
-                        alt="Deutsch"
-                    />
-                </li>
+        <div class="p-[20px] bg-base-100">
+            <div class="flex gap-1">
+                <LanguageIcon />
+                <b>{t!(i18n, language)}:</b>
+            </div>
+            <ul>
+                <LanguageOption locale=Locale::en alt=String::from("English") />
+                <LanguageOption locale=Locale::de alt=String::from("Deutsch") />
             </ul>
         </div>
+    }
+}
+
+#[component]
+pub fn LanguageOption(locale: Locale, alt: String) -> impl IntoView {
+    let locale_string = locale.to_string();
+
+    view! {
+        <li class="flex pt-2">
+            <label class="grow" for=format!("language-{}", locale_string)>
+                {alt.clone()}
+            </label>
+            <input
+                type="radio"
+                class="radio border-2"
+                name="language"
+                id=format!("language-{}", locale_string)
+                value=locale_string
+                checked=move || use_i18n().get_locale() == locale
+                on:change=move |_| use_i18n().set_locale(locale)
+                alt=alt
+            />
+        </li>
     }
 }
