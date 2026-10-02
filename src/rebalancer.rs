@@ -28,7 +28,9 @@ pub fn Rebalancer() -> impl IntoView {
         view! {
             <div class="fab">
                 <div tabindex="0" role="button" class="btn btn-lg rounded-full flex">
-                    {move || format!("{}: {}", t_string!(i18n, strategy), strategy.get())}
+                    {t_string!(i18n, strategy)}
+                    :
+                    {move || view! { <StrategyIcon strategy=strategy.get() /> }}
                 </div>
                 {StrategyState::iter()
                     .map(|stra| {
