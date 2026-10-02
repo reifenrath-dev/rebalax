@@ -255,14 +255,14 @@ pub fn StrategyButton(
 ) -> impl IntoView {
     let i18n = use_i18n();
     let value = match strategy {
-        StrategyState::Buy => t_string!(i18n, alt_buy),
-        StrategyState::Reallocate => t_string!(i18n, alt_buy_sell),
-        StrategyState::Sell => t_string!(i18n, alt_sell),
+        StrategyState::Buy => t!(i18n, alt_buy).into_any(),
+        StrategyState::Reallocate => t!(i18n, alt_buy_sell).into_any(),
+        StrategyState::Sell => t!(i18n, alt_sell).into_any(),
     };
 
     if active {
         view! {
-            <button disabled class="btn bg-base-100 rounded-full" value=value>
+            <button disabled class="btn bg-base-100 rounded-full">
                 {value}
                 <StrategyIcon strategy=strategy />
             </button>
@@ -270,7 +270,7 @@ pub fn StrategyButton(
         .into_any()
     } else {
         view! {
-            <button value=value class="btn rounded-full" on:click=on_click>
+            <button class="btn rounded-full" on:click=on_click>
                 {value}
                 <StrategyIcon strategy=strategy />
             </button>

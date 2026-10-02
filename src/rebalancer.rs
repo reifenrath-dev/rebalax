@@ -28,7 +28,7 @@ pub fn Rebalancer() -> impl IntoView {
         view! {
             <div class="fab">
                 <div tabindex="0" role="button" class="btn btn-lg rounded-full flex">
-                    {t_string!(i18n, strategy)}
+                    {t!(i18n, strategy)}
                     :
                     {move || view! { <StrategyIcon strategy=strategy.get() /> }}
                 </div>
@@ -96,7 +96,7 @@ pub fn Rebalancer() -> impl IntoView {
                             </button>
                         </PositionRow>
                         <PositionRow>
-                            <RowLabel>{t_string!(i18n, current)}</RowLabel>
+                            <RowLabel>{t!(i18n, current)}</RowLabel>
                             <InputCell>
                                 <input
                                     class="input text-right"
@@ -142,7 +142,7 @@ pub fn Rebalancer() -> impl IntoView {
                             </DisplayCell>
                         </PositionRow>
                         <PositionRow>
-                            <RowLabel>{t_string!(i18n, target)}</RowLabel>
+                            <RowLabel>{t!(i18n, target)}</RowLabel>
                             <DisplayCell>
                                 <div class="text-right">
                                     {move || {
