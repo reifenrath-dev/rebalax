@@ -227,6 +227,46 @@ pub fn LanguageIcon() -> impl IntoView {
 }
 
 #[component]
+pub fn PreviousIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-left preview-icon"
+        >
+            <path d="m15 18-6-6 6-6" />
+        </svg>
+    }
+}
+
+#[component]
+pub fn NextIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-right preview-icon"
+        >
+            <path d="m9 18 6-6-6-6" />
+        </svg>
+    }
+}
+
+#[component]
 pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
     if diff.is_zero() {
         view! { <span class="zero">{"".to_string()}</span> }
@@ -262,7 +302,7 @@ pub fn StrategyButton(
 
     if active {
         view! {
-            <button disabled class="btn bg-base-100 rounded-full">
+            <button disabled class="rounded-full btn bg-base-100">
                 {value}
                 <StrategyIcon strategy=strategy />
             </button>
@@ -270,7 +310,7 @@ pub fn StrategyButton(
         .into_any()
     } else {
         view! {
-            <button class="btn rounded-full" on:click=on_click>
+            <button class="rounded-full btn" on:click=on_click>
                 {value}
                 <StrategyIcon strategy=strategy />
             </button>
@@ -289,14 +329,14 @@ pub fn SwitchMenuButton() -> impl IntoView {
     move || {
         if use_location().pathname.get().contains("menu") {
             view! {
-                <a href="/" class="btn rounded-full">
+                <a href="/" class="rounded-full btn">
                     <CloseIcon />
                 </a>
             }
             .into_any()
         } else {
             view! {
-                <a href="/menu" class="btn rounded-full">
+                <a href="/menu" class="rounded-full btn">
                     <MenuIcon />
                 </a>
             }

@@ -27,7 +27,7 @@ pub fn Rebalancer() -> impl IntoView {
     let strategy_options = {
         view! {
             <div class="fab">
-                <div tabindex="0" role="button" class="btn btn-lg rounded-full flex">
+                <div tabindex="0" role="button" class="flex rounded-full btn btn-lg">
                     {t!(i18n, strategy)}
                     :
                     {move || view! { <StrategyIcon strategy=strategy.get() /> }}
@@ -59,7 +59,7 @@ pub fn Rebalancer() -> impl IntoView {
                     view! {
                         <PositionRow>
                             <input
-                                class="input join-item flex-grow rounded-tl-lg"
+                                class="flex-grow rounded-tl-lg input join-item"
                                 type="text"
                                 value=position.name
                                 on:input=move |ev| {
@@ -79,7 +79,7 @@ pub fn Rebalancer() -> impl IntoView {
                                 }
                             />
                             <button
-                                class="btn join-item rounded-tr-lg"
+                                class="rounded-tr-lg btn join-item"
                                 on:click=move |_| {
                                     set_positions
                                         .update(|value| {
@@ -99,7 +99,7 @@ pub fn Rebalancer() -> impl IntoView {
                             <RowLabel>{t!(i18n, current)}</RowLabel>
                             <InputCell>
                                 <input
-                                    class="input text-right"
+                                    class="text-right input"
                                     id=format!("{}-position-input", position.id)
                                     min="0"
                                     max="9999999"
@@ -173,14 +173,14 @@ pub fn Rebalancer() -> impl IntoView {
                                 </div>
                             </DisplayCell>
                             <InputCell>
-                                <label class="input text-right">
+                                <label class="text-right input">
                                     <input
                                         id=format!("{}-target-input", position.id)
                                         min="0.01"
                                         max="100"
                                         placeholder="..."
                                         type="number"
-                                        class="grow text-right"
+                                        class="text-right grow"
                                         value=if position.target_allocation.is_zero() {
                                             "".to_string()
                                         } else {
@@ -219,7 +219,7 @@ pub fn Rebalancer() -> impl IntoView {
     let add_position_button = {
         view! {
             <button
-                class="btn w-full rounded-b-lg"
+                class="w-full rounded-b-lg btn"
                 on:click=move |_| {
                     let current_positions = positions.get();
                     let len = current_positions.rows.len();
@@ -279,17 +279,28 @@ pub fn Rebalancer() -> impl IntoView {
     };
 
     view! {
-        <div class="fixed w-full ml-[-20px] p-[20px] z-100 flex gap-2">
-            <input
-                type="text"
-                class="input rounded-full font-bold grow"
-                value=positions.get().name
-                on:input=move |ev| {
-                    let mut new_positions = positions.get();
-                    new_positions.name = event_target_value(&ev).parse().unwrap();
-                    set_positions.set(new_positions.clone())
-                }
-            />
+        <div class="flex fixed gap-2 w-full ml-[-20px] p-[20px] z-100">
+            <div class="join grow">
+                <button class="rounded-l-full btn btn-circle join-item">
+                    <PreviousIcon />
+                </button>
+                <input
+                    type="text"
+                    class="font-bold input grow join-item"
+                    value=positions.get().name
+                    on:input=move |ev| {
+                        let mut new_positions = positions.get();
+                        new_positions.name = event_target_value(&ev).parse().unwrap();
+                        set_positions.set(new_positions.clone())
+                    }
+                />
+                <button class="btn btn-circle join-item">
+                    <PlusIcon />
+                </button>
+                <button class="rounded-r-full btn btn-circle join-item">
+                    <NextIcon />
+                </button>
+            </div>
             <SwitchMenuButton />
         </div>
         <main class="pt-[100px]">
