@@ -6,19 +6,19 @@ use strum_macros::{Display, EnumIter, EnumString};
 use uuid::Uuid;
 
 #[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct PositionsDataStore {
+pub struct PortfolioDataStore {
     pub id: Uuid,
     pub name: String,
     #[store(key: Uuid = |row| row.id)]
-    pub rows: Vec<PositionInputState>,
+    pub positions: Vec<PositionInputState>,
 }
 
-impl Default for PositionsDataStore {
+impl Default for PortfolioDataStore {
     fn default() -> Self {
         Self {
             id: Uuid::now_v7(),
             name: "My First Portfolio".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),
@@ -44,25 +44,25 @@ pub struct PositionInputState {
     pub target_allocation: Decimal,
 }
 
-impl PositionsDataStore {
+impl PortfolioDataStore {
     pub fn is_valid_target_allocation(&self) -> bool {
-        self.rows
+        self.positions
             .iter()
             .map(|x| x.target_allocation)
             .sum::<Decimal>()
             == dec!(1)
             && !self
-                .rows
+                .positions
                 .iter()
                 .any(|row| row.target_allocation.is_sign_negative())
     }
     pub fn total(&self) -> Decimal {
-        self.rows
+        self.positions
             .iter()
             .fold(dec!(0), |acc, row| acc + row.current_position)
     }
     pub fn all_positions_above_zero(&self) -> bool {
-        self.rows
+        self.positions
             .iter()
             .all(|x| !x.current_position.is_zero() && x.current_position.is_sign_positive())
     }
@@ -70,7 +70,7 @@ impl PositionsDataStore {
         if self.total() == dec!(0) {
             dec!(0)
         } else {
-            self.rows
+            self.positions
                 .iter()
                 .find(|x| x.id == id)
                 .unwrap()
@@ -116,10 +116,10 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_true() {
-        let sut = PositionsDataStore {
+        let sut = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),
@@ -152,10 +152,10 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_exceeds_100percent() {
-        let sut = PositionsDataStore {
+        let sut = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),
@@ -188,10 +188,10 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_not_100percent() {
-        let sut = PositionsDataStore {
+        let sut = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),
@@ -212,10 +212,10 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_negative_position() {
-        let sut = PositionsDataStore {
+        let sut = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: Uuid::now_v7(),
                     name: "Position 1".to_string(),

@@ -1,4 +1,4 @@
-use crate::types::{PositionsDataStore, StrategyState, TargetPosition};
+use crate::types::{PortfolioDataStore, StrategyState, TargetPosition};
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use uuid::Uuid;
@@ -38,12 +38,12 @@ struct UnbalancedAsset {
 /// edge cases where target allocations might be zero to avoid division by zero errors.
 pub fn get_target_assets(
     strategy: StrategyState,
-    positions_store: PositionsDataStore,
+    positions_store: PortfolioDataStore,
 ) -> Vec<TargetPosition> {
     if !positions_store.is_valid_target_allocation() || !positions_store.all_positions_above_zero()
     {
         positions_store
-            .rows
+            .positions
             .iter()
             .map(|x| TargetPosition {
                 id: x.id,
@@ -52,7 +52,7 @@ pub fn get_target_assets(
             .collect()
     } else {
         let position_total: Decimal = positions_store
-            .rows
+            .positions
             .iter()
             .map(|x| x.current_position)
             .sum();
@@ -63,7 +63,7 @@ pub fn get_target_assets(
                 let polarity = if is_buy { dec!(-1) } else { dec!(1) };
 
                 let assets: Vec<UnbalancedAsset> = positions_store
-                    .rows
+                    .positions
                     .iter()
                     .map(|x| UnbalancedAsset {
                         id: x.id,
@@ -94,7 +94,7 @@ pub fn get_target_assets(
                     .collect()
             }
             StrategyState::Reallocate => positions_store
-                .rows
+                .positions
                 .iter()
                 .map(|position| TargetPosition {
                     id: position.id,
@@ -108,7 +108,7 @@ pub fn get_target_assets(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
+    use crate::types::{PortfolioDataStore, PositionInputState, StrategyState};
 
     #[test]
     fn get_target_assets_negative_position_mirrors_input() {
@@ -116,10 +116,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -160,10 +160,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -204,10 +204,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -248,10 +248,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -292,10 +292,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -336,10 +336,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -380,10 +380,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),
@@ -424,10 +424,10 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
+        let positions_store = PortfolioDataStore {
             id: Uuid::now_v7(),
             name: "Portfolio 1".to_string(),
-            rows: vec![
+            positions: vec![
                 PositionInputState {
                     id: first_id,
                     name: "".to_string(),

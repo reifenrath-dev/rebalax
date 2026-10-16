@@ -1,7 +1,7 @@
 use crate::components::*;
 use crate::functions;
 use crate::i18n::*;
-use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
+use crate::types::{PortfolioDataStore, PositionInputState, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
@@ -16,13 +16,13 @@ pub fn Rebalancer() -> impl IntoView {
     let (strategy, set_strategy, _) =
         use_local_storage::<StrategyState, JsonSerdeCodec>("strategy-state");
 
-    let (positions, set_positions, _) =
-        use_local_storage::<PositionsDataStore, JsonSerdeCodec>("asset-state");
+    let (portfolio, set_portfolio, _) =
+        use_local_storage::<PortfolioDataStore, JsonSerdeCodec>("asset-state");
 
     // Value Functions
-    let position_total = move || positions.get().total();
+    let portfolio_total = move || portfolio.get().total();
 
-    let target_positions = move || functions::get_target_assets(strategy.get(), positions.get());
+    let target_portfolio = move || functions::get_target_assets(strategy.get(), portfolio.get());
 
     let strategy_options = {
         view! {
@@ -53,7 +53,7 @@ pub fn Rebalancer() -> impl IntoView {
     let position_table_rows = {
         view! {
             <For
-                each=move || positions.get().rows.clone()
+                each=move || portfolio.get().positions.clone()
                 key=|row| row.id
                 children=move |position| {
                     view! {
@@ -63,32 +63,32 @@ pub fn Rebalancer() -> impl IntoView {
                                 type="text"
                                 value=position.name
                                 on:input=move |ev| {
-                                    let current_positions = positions.get();
-                                    let mut new_positions = current_positions.rows;
+                                    let current_portfolio = portfolio.get();
+                                    let mut new_positions = current_portfolio.positions;
                                     new_positions
                                         .iter_mut()
                                         .find(|x| x.id == position.id)
                                         .unwrap()
                                         .name = event_target_value(&ev).parse().unwrap();
-                                    set_positions
-                                        .set(PositionsDataStore {
-                                            id: current_positions.id,
-                                            name: current_positions.name,
-                                            rows: new_positions,
+                                    set_portfolio
+                                        .set(PortfolioDataStore {
+                                            id: current_portfolio.id,
+                                            name: current_portfolio.name,
+                                            positions: new_positions,
                                         })
                                 }
                             />
                             <button
                                 class="rounded-tr-lg btn join-item"
                                 on:click=move |_| {
-                                    set_positions
+                                    set_portfolio
                                         .update(|value| {
                                             let ix = value
-                                                .rows
+                                                .positions
                                                 .iter()
                                                 .position(|x| x.id == position.id)
                                                 .unwrap();
-                                            value.rows.remove(ix);
+                                            value.positions.remove(ix);
                                         })
                                 }
                             >
@@ -111,8 +111,8 @@ pub fn Rebalancer() -> impl IntoView {
                                         position.current_position.round_dp(0).to_string()
                                     }
                                     on:input=move |ev| {
-                                        let current_positions = positions.get();
-                                        let mut new_positions = current_positions.rows;
+                                        let current_portfolio = portfolio.get();
+                                        let mut new_positions = current_portfolio.positions;
                                         new_positions
                                             .iter_mut()
                                             .find(|x| x.id == position.id)
@@ -120,11 +120,11 @@ pub fn Rebalancer() -> impl IntoView {
                                             .current_position = event_target_value(&ev)
                                             .parse::<Decimal>()
                                             .unwrap_or(dec!(0));
-                                        set_positions
-                                            .set(PositionsDataStore {
-                                                id: current_positions.id,
-                                                name: current_positions.name,
-                                                rows: new_positions,
+                                        set_portfolio
+                                            .set(PortfolioDataStore {
+                                                id: current_portfolio.id,
+                                                name: current_portfolio.name,
+                                                positions: new_positions,
                                             })
                                     }
                                 />
@@ -134,7 +134,7 @@ pub fn Rebalancer() -> impl IntoView {
                                     {move || {
                                         format!(
                                             "{} %",
-                                            (positions.get().allocation_for(position.id) * dec!(100))
+                                            (portfolio.get().allocation_for(position.id) * dec!(100))
                                                 .round_dp(2),
                                         )
                                     }}
@@ -146,7 +146,7 @@ pub fn Rebalancer() -> impl IntoView {
                             <DisplayCell>
                                 <div class="text-right">
                                     {move || {
-                                        target_positions()
+                                        target_portfolio()
                                             .iter()
                                             .find(|x| x.id == position.id)
                                             .unwrap()
@@ -155,14 +155,14 @@ pub fn Rebalancer() -> impl IntoView {
                                             .to_string()
                                     }}
                                     {move || {
-                                        let diff = (target_positions()
+                                        let diff = (target_portfolio()
                                             .iter()
                                             .find(|x| x.id == position.id)
                                             .unwrap()
                                             .value
-                                            - positions
+                                            - portfolio
                                                 .get()
-                                                .rows
+                                                .positions
                                                 .iter()
                                                 .find(|x| x.id == position.id)
                                                 .unwrap()
@@ -189,8 +189,8 @@ pub fn Rebalancer() -> impl IntoView {
                                                 .to_string()
                                         }
                                         on:input=move |ev| {
-                                            let current_positions = positions.get();
-                                            let mut new_positions = current_positions.rows;
+                                            let current_portfolio = portfolio.get();
+                                            let mut new_positions = current_portfolio.positions;
                                             new_positions
                                                 .iter_mut()
                                                 .find(|x| x.id == position.id)
@@ -198,11 +198,11 @@ pub fn Rebalancer() -> impl IntoView {
                                                 .target_allocation = event_target_value(&ev)
                                                 .parse::<Decimal>()
                                                 .unwrap_or(dec!(0)) / dec!(100);
-                                            set_positions
-                                                .set(PositionsDataStore {
-                                                    id: current_positions.id,
-                                                    name: current_positions.name,
-                                                    rows: new_positions,
+                                            set_portfolio
+                                                .set(PortfolioDataStore {
+                                                    id: current_portfolio.id,
+                                                    name: current_portfolio.name,
+                                                    positions: new_positions,
                                                 })
                                         }
                                     />
@@ -221,15 +221,15 @@ pub fn Rebalancer() -> impl IntoView {
             <button
                 class="w-full rounded-b-lg btn"
                 on:click=move |_| {
-                    let current_positions = positions.get();
-                    let len = current_positions.rows.len();
-                    set_positions
+                    let current_portfolio = portfolio.get();
+                    let len = current_portfolio.positions.len();
+                    set_portfolio
                         .update(|value| {
-                            *value = PositionsDataStore {
-                                id: current_positions.id,
-                                name: current_positions.name,
-                                rows: value
-                                    .rows
+                            *value = PortfolioDataStore {
+                                id: current_portfolio.id,
+                                name: current_portfolio.name,
+                                positions: value
+                                    .positions
                                     .iter()
                                     .cloned()
                                     .chain([
@@ -251,24 +251,24 @@ pub fn Rebalancer() -> impl IntoView {
     };
 
     let total_calculation_string = move || {
-        let diff = (position_total()
-            - (target_positions()
+        let diff = (portfolio_total()
+            - (target_portfolio()
                 .iter()
                 .cloned()
                 .fold(dec!(0), |acc, x| acc + x.value.round_dp(0))))
             * dec!(-1);
         if strategy.get() == StrategyState::Reallocate
-            || !positions.get().is_valid_target_allocation()
-            || !positions.get().all_positions_above_zero()
+            || !portfolio.get().is_valid_target_allocation()
+            || !portfolio.get().all_positions_above_zero()
             || diff == dec!(0)
         {
-            view! { {position_total().to_string()} }.into_any()
+            view! { {portfolio_total().to_string()} }.into_any()
         } else {
             view! {
-                {position_total().to_string()}
+                {portfolio_total().to_string()}
                 <DiffString diff has_braces=false />
                 {" = ".to_string()}
-                {target_positions()
+                {target_portfolio()
                     .iter()
                     .cloned()
                     .fold(dec!(0), |acc, x| acc + x.value.round_dp(0))
@@ -287,11 +287,11 @@ pub fn Rebalancer() -> impl IntoView {
                 <input
                     type="text"
                     class="font-bold input grow join-item"
-                    value=positions.get().name
+                    value=portfolio.get().name
                     on:input=move |ev| {
-                        let mut new_positions = positions.get();
-                        new_positions.name = event_target_value(&ev).parse().unwrap();
-                        set_positions.set(new_positions.clone())
+                        let mut new_portfolio = portfolio.get();
+                        new_portfolio.name = event_target_value(&ev).parse().unwrap();
+                        set_portfolio.set(new_portfolio.clone())
                     }
                 />
                 <button class="btn btn-circle join-item">
