@@ -89,6 +89,20 @@ impl PortfoliosDataStore {
             .unwrap()
             .target_allocation = allocation;
     }
+    pub fn remove_position(&mut self, position_id: &Uuid) {
+        self.portfolios
+            .get_mut(&self.selected_portfolio)
+            .unwrap()
+            .positions
+            .remove(position_id);
+    }
+    pub fn add_position(&mut self, position: Position) {
+        self.portfolios
+            .get_mut(&self.selected_portfolio)
+            .unwrap()
+            .positions
+            .insert(Uuid::now_v7(), position);
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]

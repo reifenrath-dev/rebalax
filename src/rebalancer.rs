@@ -1,7 +1,7 @@
 use crate::components::*;
 use crate::functions;
 use crate::i18n::*;
-use crate::types::{PortfoliosDataStore, StrategyState};
+use crate::types::{PortfoliosDataStore, Position, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
@@ -18,14 +18,10 @@ pub fn Rebalancer() -> impl IntoView {
         use_local_storage::<PortfoliosDataStore, JsonSerdeCodec>("asset-state");
 
     // Value Functions
-    let add_position = move || {};
-
-    let remove_position = move |id| {};
-
     let portfolio_total = move || portfolios.get().get_current().total();
 
     let target_portfolio =
-        move || functions::get_target_assets(strategy.get(), &portfolios.get().get_current());
+        move || functions::get_target_assets(strategy.get(), portfolios.get().get_current());
 
     let strategy_options = {
         view! {
@@ -75,7 +71,12 @@ pub fn Rebalancer() -> impl IntoView {
                             />
                             <button
                                 class="rounded-tr-lg btn join-item"
-                                on:click=move |_| { remove_position(position_id) }
+                                on:click=move |_| {
+                                    set_portfolios
+                                        .update(|portfolios_data_store| {
+                                            portfolios_data_store.remove_position(&position_id)
+                                        })
+                                }
                             >
                                 <DeleteIcon />
                             </button>
@@ -179,7 +180,20 @@ pub fn Rebalancer() -> impl IntoView {
 
     let add_position_button = {
         view! {
-            <button class="w-full rounded-b-lg btn" on:click=move |_| { add_position() }>
+            <button
+                class="w-full rounded-b-lg btn"
+                on:click=move |_| {
+                    set_portfolios
+                        .update(|portfolios_data_store| {
+                            portfolios_data_store
+                                .add_position(Position {
+                                    name: "".to_string(),
+                                    current_position: dec!(0),
+                                    target_allocation: dec!(0),
+                                })
+                        })
+                }
+            >
                 <PlusIcon />
             </button>
         }
