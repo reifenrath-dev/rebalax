@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use reactive_stores::Store;
 use rust_decimal::Decimal;
@@ -10,13 +10,13 @@ use uuid::Uuid;
 #[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PortfoliosDataStore {
     pub selected_portfolio: Uuid,
-    pub portfolios: HashMap<Uuid, Portfolio>,
+    pub portfolios: BTreeMap<Uuid, Portfolio>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Portfolio {
     pub name: String,
-    pub positions: HashMap<Uuid, Position>,
+    pub positions: BTreeMap<Uuid, Position>,
 }
 
 impl Default for PortfoliosDataStore {
@@ -24,11 +24,11 @@ impl Default for PortfoliosDataStore {
         let id = Uuid::now_v7();
         Self {
             selected_portfolio: id,
-            portfolios: HashMap::from([(
+            portfolios: BTreeMap::from([(
                 id,
                 Portfolio {
                     name: "My First Portfolio".to_string(),
-                    positions: HashMap::from([
+                    positions: BTreeMap::from([
                         (
                             Uuid::now_v7(),
                             Position {
@@ -102,6 +102,9 @@ impl PortfoliosDataStore {
             .unwrap()
             .positions
             .insert(Uuid::now_v7(), position);
+    }
+    pub fn add_portfolio(&mut self, id: Uuid, portfolio: Portfolio) {
+        self.portfolios.insert(id, portfolio);
     }
 }
 
@@ -187,7 +190,7 @@ mod tests {
     fn is_valid_target_allocation_true() {
         let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     Uuid::now_v7(),
                     Position {
@@ -230,7 +233,7 @@ mod tests {
     fn is_valid_target_allocation_exceeds_100percent() {
         let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     Uuid::now_v7(),
                     Position {
@@ -273,7 +276,7 @@ mod tests {
     fn is_valid_target_allocation_not_100percent() {
         let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     Uuid::now_v7(),
                     Position {
@@ -300,7 +303,7 @@ mod tests {
     fn is_valid_target_allocation_negative_position() {
         let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     Uuid::now_v7(),
                     Position {

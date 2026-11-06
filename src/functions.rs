@@ -101,7 +101,7 @@ pub fn get_target_assets(
 mod tests {
     use super::*;
     use crate::types::{Portfolio, Position, StrategyState};
-    use std::collections::HashMap;
+    use std::collections::BTreeMap;
 
     #[test]
     fn get_target_assets_negative_position_mirrors_input() {
@@ -111,7 +111,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -157,7 +157,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -203,7 +203,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -249,7 +249,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -295,7 +295,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -341,7 +341,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -387,7 +387,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
@@ -433,7 +433,7 @@ mod tests {
         let third_id = Uuid::new_v4();
         let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: HashMap::from([
+            positions: BTreeMap::from([
                 (
                     first_id,
                     Position {
