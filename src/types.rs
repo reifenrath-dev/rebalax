@@ -13,7 +13,7 @@ pub struct PortfoliosDataStore {
     pub portfolios: HashMap<Uuid, Portfolio>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct Portfolio {
     pub name: String,
     pub positions: HashMap<Uuid, Position>,
@@ -55,6 +55,12 @@ impl Default for PortfoliosDataStore {
 impl PortfoliosDataStore {
     pub fn get_current(&self) -> &Portfolio {
         &self.portfolios[&self.selected_portfolio]
+    }
+    pub fn set_portfolio_name(&mut self, portfolio_name: String) {
+        self.portfolios
+            .get_mut(&self.selected_portfolio)
+            .unwrap()
+            .name = portfolio_name;
     }
 }
 

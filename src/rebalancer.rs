@@ -207,7 +207,9 @@ pub fn Rebalancer() -> impl IntoView {
                     class="font-bold input grow join-item"
                     value=portfolios.get().get_current().name.to_string()
                     on:input=move |ev| {
-
+                        set_portfolios.update(|portfolios_data_store|
+                            portfolios_data_store.set_portfolio_name(event_target_value(&ev))
+                        );
                     }
                 />
                 <button class="btn btn-circle join-item">
