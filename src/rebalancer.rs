@@ -1,7 +1,7 @@
 use crate::components::*;
 use crate::functions;
 use crate::i18n::*;
-use crate::types::{Portfolio, PortfoliosDataStore, StrategyState};
+use crate::types::{PortfoliosDataStore, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
@@ -18,8 +18,6 @@ pub fn Rebalancer() -> impl IntoView {
         use_local_storage::<PortfoliosDataStore, JsonSerdeCodec>("asset-state");
 
     // Value Functions
-    let set_portfolio = move |x: Portfolio| {};
-
     let add_position = move || {};
 
     let remove_position = move |id| {};
@@ -68,7 +66,11 @@ pub fn Rebalancer() -> impl IntoView {
                                 type="text"
                                 value=position.name.to_string()
                                 on:input=move |ev| {
-
+                                    set_portfolios
+                                        .update(|portfolios_data_store| {
+                                            portfolios_data_store
+                                                .set_position_name(&position_id, event_target_value(&ev))
+                                        })
                                 }
                             />
                             <button
@@ -94,7 +96,14 @@ pub fn Rebalancer() -> impl IntoView {
                                         position.current_position.round_dp(0).to_string()
                                     }
                                     on:input=move |ev| {
-
+                                        set_portfolios
+                                            .update(|portfolios_data_store| {
+                                                portfolios_data_store
+                                                    .set_position_current_value(
+                                                        &position_id,
+                                                        event_target_value(&ev).parse().unwrap_or(dec!(0)),
+                                                    )
+                                            })
                                     }
                                 />
                             </InputCell>
@@ -116,9 +125,7 @@ pub fn Rebalancer() -> impl IntoView {
                             <DisplayCell>
                                 <div class="text-right">
                                     {move || {
-                                        target_portfolio()[&position_id]
-                                            .round_dp(0)
-                                            .to_string()
+                                        target_portfolio()[&position_id].round_dp(0).to_string()
                                     }}
                                     {move || {
                                         let diff = (target_portfolio()[&position_id]
@@ -149,7 +156,15 @@ pub fn Rebalancer() -> impl IntoView {
                                                 .to_string()
                                         }
                                         on:input=move |ev| {
-
+                                            set_portfolios
+                                                .update(|portfolios_data_store| {
+                                                    portfolios_data_store
+                                                        .set_position_target_allocation(
+                                                            &position_id,
+                                                            event_target_value(&ev).parse().unwrap_or(dec!(0))
+                                                                / dec!(100),
+                                                        )
+                                                })
                                         }
                                     />
                                     <span class="ml-[-4px]">%</span>
@@ -207,9 +222,10 @@ pub fn Rebalancer() -> impl IntoView {
                     class="font-bold input grow join-item"
                     value=portfolios.get().get_current().name.to_string()
                     on:input=move |ev| {
-                        set_portfolios.update(|portfolios_data_store|
-                            portfolios_data_store.set_portfolio_name(event_target_value(&ev))
-                        );
+                        set_portfolios
+                            .update(|portfolios_data_store| {
+                                portfolios_data_store.set_portfolio_name(event_target_value(&ev))
+                            });
                     }
                 />
                 <button class="btn btn-circle join-item">

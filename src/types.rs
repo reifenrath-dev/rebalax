@@ -62,6 +62,33 @@ impl PortfoliosDataStore {
             .unwrap()
             .name = portfolio_name;
     }
+    pub fn set_position_name(&mut self, position_id: &Uuid, position_name: String) {
+        self.portfolios
+            .get_mut(&self.selected_portfolio)
+            .unwrap()
+            .positions
+            .get_mut(position_id)
+            .unwrap()
+            .name = position_name;
+    }
+    pub fn set_position_current_value(&mut self, position_id: &Uuid, value: Decimal) {
+        self.portfolios
+            .get_mut(&self.selected_portfolio)
+            .unwrap()
+            .positions
+            .get_mut(position_id)
+            .unwrap()
+            .current_position = value;
+    }
+    pub fn set_position_target_allocation(&mut self, position_id: &Uuid, allocation: Decimal) {
+        self.portfolios
+            .get_mut(&self.selected_portfolio)
+            .unwrap()
+            .positions
+            .get_mut(position_id)
+            .unwrap()
+            .target_allocation = allocation;
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
