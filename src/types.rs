@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use reactive_stores::Store;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
@@ -6,74 +8,94 @@ use strum_macros::{Display, EnumIter, EnumString};
 use uuid::Uuid;
 
 #[derive(Store, Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct PortfolioDataStore {
-    pub id: Uuid,
-    pub name: String,
-    #[store(key: Uuid = |row| row.id)]
-    pub positions: Vec<PositionInputState>,
+pub struct PortfoliosDataStore {
+    pub selected_portfolio: Uuid,
+    pub portfolios: HashMap<Uuid, Portfolio>,
 }
 
-impl Default for PortfolioDataStore {
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Portfolio {
+    pub name: String,
+    pub positions: HashMap<Uuid, Position>,
+}
+
+impl Default for PortfoliosDataStore {
     fn default() -> Self {
+        let id = Uuid::now_v7();
         Self {
-            id: Uuid::now_v7(),
-            name: "My First Portfolio".to_string(),
-            positions: vec![
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 1".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.70),
+            selected_portfolio: id,
+            portfolios: HashMap::from([(
+                id,
+                Portfolio {
+                    name: "My First Portfolio".to_string(),
+                    positions: HashMap::from([
+                        (
+                            Uuid::now_v7(),
+                            Position {
+                                name: "Position 1".to_string(),
+                                current_position: dec!(0),
+                                target_allocation: dec!(0.70),
+                            },
+                        ),
+                        (
+                            Uuid::now_v7(),
+                            Position {
+                                name: "Position 2".to_string(),
+                                current_position: dec!(0),
+                                target_allocation: dec!(0.30),
+                            },
+                        ),
+                    ]),
                 },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.30),
-                },
-            ],
+            )]),
         }
     }
 }
 
+impl PortfoliosDataStore {
+    pub fn get_current(&self) -> &Portfolio {
+        &self.portfolios[&self.selected_portfolio]
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
-pub struct PositionInputState {
-    pub id: Uuid,
+pub struct Position {
     pub name: String,
     pub current_position: Decimal,
     pub target_allocation: Decimal,
 }
 
-impl PortfolioDataStore {
+impl Portfolio {
     pub fn is_valid_target_allocation(&self) -> bool {
         self.positions
             .iter()
-            .map(|x| x.target_allocation)
+            .map(|(_, x)| x.target_allocation)
             .sum::<Decimal>()
             == dec!(1)
             && !self
                 .positions
                 .iter()
-                .any(|row| row.target_allocation.is_sign_negative())
+                .any(|(_, row)| row.target_allocation.is_sign_negative())
     }
     pub fn total(&self) -> Decimal {
         self.positions
             .iter()
-            .fold(dec!(0), |acc, row| acc + row.current_position)
+            .fold(dec!(0), |acc, (_, row)| acc + row.current_position)
     }
     pub fn all_positions_above_zero(&self) -> bool {
         self.positions
             .iter()
-            .all(|x| !x.current_position.is_zero() && x.current_position.is_sign_positive())
+            .all(|(_, x)| !x.current_position.is_zero() && x.current_position.is_sign_positive())
     }
-    pub fn allocation_for(&self, id: Uuid) -> Decimal {
+    pub fn allocation_for(&self, id: &Uuid) -> Decimal {
         if self.total() == dec!(0) {
             dec!(0)
         } else {
             self.positions
                 .iter()
-                .find(|x| x.id == id)
+                .find(|(x, _)| *x == id)
                 .unwrap()
+                .1
                 .current_position
                 / self.total()
         }
@@ -116,35 +138,42 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_true() {
-        let sut = PortfolioDataStore {
-            id: Uuid::now_v7(),
+        let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: vec![
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 1".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.70),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.28),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 3".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.0001),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 4".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.0199),
-                },
-            ],
+            positions: HashMap::from([
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 1".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.70),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 2".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.28),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 3".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.0001),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 4".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.0199),
+                    },
+                ),
+            ]),
         };
 
         assert!(sut.is_valid_target_allocation());
@@ -152,35 +181,42 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_exceeds_100percent() {
-        let sut = PortfolioDataStore {
-            id: Uuid::now_v7(),
+        let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: vec![
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 1".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.70),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.28),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 3".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.0002),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 4".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.0199),
-                },
-            ],
+            positions: HashMap::from([
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 1".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.70),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 2".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.28),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 3".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.0002),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 4".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.0199),
+                    },
+                ),
+            ]),
         };
 
         assert!(!sut.is_valid_target_allocation());
@@ -188,23 +224,26 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_not_100percent() {
-        let sut = PortfolioDataStore {
-            id: Uuid::now_v7(),
+        let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: vec![
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 1".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.70),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.28),
-                },
-            ],
+            positions: HashMap::from([
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 1".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.70),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 2".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.28),
+                    },
+                ),
+            ]),
         };
 
         assert!(!sut.is_valid_target_allocation());
@@ -212,29 +251,34 @@ mod tests {
 
     #[test]
     fn is_valid_target_allocation_negative_position() {
-        let sut = PortfolioDataStore {
-            id: Uuid::now_v7(),
+        let sut = Portfolio {
             name: "Portfolio 1".to_string(),
-            positions: vec![
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 1".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.70),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.30),
-                },
-                PositionInputState {
-                    id: Uuid::now_v7(),
-                    name: "Position 2".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(-0.10),
-                },
-            ],
+            positions: HashMap::from([
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 1".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.70),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 2".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.30),
+                    },
+                ),
+                (
+                    Uuid::now_v7(),
+                    Position {
+                        name: "Position 3".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(-0.10),
+                    },
+                ),
+            ]),
         };
 
         assert!(!sut.is_valid_target_allocation());
