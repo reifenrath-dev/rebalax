@@ -1,12 +1,13 @@
 use crate::components::*;
 use crate::functions;
 use crate::i18n::*;
-use crate::types::{PortfoliosDataStore, Position, StrategyState};
+use crate::types::{Portfolio, PortfoliosDataStore, Position, StrategyState};
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;
 use rust_decimal_macros::dec;
 use strum::IntoEnumIterator;
+use uuid::Uuid;
 
 #[component]
 pub fn Rebalancer() -> impl IntoView {
@@ -183,14 +184,14 @@ pub fn Rebalancer() -> impl IntoView {
             <button
                 class="w-full rounded-b-lg btn"
                 on:click=move |_| {
+                    let new_position = Position {
+                        name: "".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0),
+                    };
                     set_portfolios
                         .update(|portfolios_data_store| {
-                            portfolios_data_store
-                                .add_position(Position {
-                                    name: "".to_string(),
-                                    current_position: dec!(0),
-                                    target_allocation: dec!(0),
-                                })
+                            portfolios_data_store.add_position(new_position)
                         })
                 }
             >
@@ -228,13 +229,38 @@ pub fn Rebalancer() -> impl IntoView {
     view! {
         <div class="flex fixed gap-2 w-full ml-[-20px] p-[20px] z-100">
             <div class="join grow">
-                <button class="rounded-l-full btn btn-circle join-item">
+                <button
+                    class="rounded-l-full btn btn-circle join-item"
+                    on:click=move |_| {
+                        let portfolio_data = portfolios.get();
+                        let selected_portfolio = portfolio_data.selected_portfolio;
+                        let previous_portfolio = portfolio_data
+                            .portfolios
+                            .range(..selected_portfolio)
+                            .next_back()
+                            .map(|(&k, _)| k)
+                            .unwrap_or(selected_portfolio);
+                        if selected_portfolio != previous_portfolio {
+                            set_portfolios
+                                .update(|portfolios_data_store| {
+                                    portfolios_data_store.selected_portfolio = previous_portfolio;
+                                })
+                        }
+                    }
+                    disabled=move || {
+                        let portfolio_data = portfolios.get();
+                        match portfolio_data.portfolios.first_key_value() {
+                            Some((&first_key, _)) => portfolio_data.selected_portfolio == first_key,
+                            None => false,
+                        }
+                    }
+                >
                     <PreviousIcon />
                 </button>
                 <input
                     type="text"
                     class="font-bold input grow join-item"
-                    value=portfolios.get().get_current().name.to_string()
+                    value=move || portfolios.get().get_current().name.to_string()
                     on:input=move |ev| {
                         set_portfolios
                             .update(|portfolios_data_store| {
@@ -242,10 +268,52 @@ pub fn Rebalancer() -> impl IntoView {
                             });
                     }
                 />
-                <button class="btn btn-circle join-item">
+                <button
+                    class="btn btn-circle join-item"
+                    on:click=move |_| {
+                        set_portfolios
+                            .update(|portfolios_data_store| {
+                                let id = Uuid::now_v7();
+                                portfolios_data_store
+                                    .add_portfolio(
+                                        id,
+                                        Portfolio {
+                                            name: "".to_string(),
+                                            positions: Default::default(),
+                                        },
+                                    );
+                                portfolios_data_store.selected_portfolio = id;
+                            })
+                    }
+                >
                     <PlusIcon />
                 </button>
-                <button class="rounded-r-full btn btn-circle join-item">
+                <button
+                    class="rounded-r-full btn btn-circle join-item"
+                    on:click=move |_| {
+                        let portfolio_data = portfolios.get();
+                        let selected_portfolio = portfolio_data.selected_portfolio;
+                        let next_portfolio = portfolio_data
+                            .portfolios
+                            .range(selected_portfolio..)
+                            .nth(1)
+                            .map(|(&k, _)| k)
+                            .unwrap_or(selected_portfolio);
+                        if next_portfolio != selected_portfolio {
+                            set_portfolios
+                                .update(|portfolios_data_store| {
+                                    portfolios_data_store.selected_portfolio = next_portfolio;
+                                })
+                        }
+                    }
+                    disabled=move || {
+                        let portfolio_data = portfolios.get();
+                        match portfolio_data.portfolios.last_key_value() {
+                            Some((&last_key, _)) => portfolio_data.selected_portfolio == last_key,
+                            None => false,
+                        }
+                    }
+                >
                     <NextIcon />
                 </button>
             </div>
