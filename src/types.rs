@@ -106,6 +106,9 @@ impl PortfoliosDataStore {
     pub fn add_portfolio(&mut self, id: Uuid, portfolio: Portfolio) {
         self.portfolios.insert(id, portfolio);
     }
+    pub fn remove_portfolio(&mut self, id: Uuid) {
+        self.portfolios.remove(&id);
+    }
     pub fn next_or_selected_portfolio(&self) -> Uuid {
         self.portfolios
             .range(self.selected_portfolio..)
@@ -119,6 +122,13 @@ impl PortfoliosDataStore {
             .next_back()
             .map(|(&k, _)| k)
             .unwrap_or(self.selected_portfolio)
+    }
+    pub fn fallback_portfolio(&self) -> Uuid {
+        if self.selected_portfolio == self.previous_or_selected_portfolio() {
+            self.next_or_selected_portfolio()
+        } else {
+            self.previous_or_selected_portfolio()
+        }
     }
 }
 

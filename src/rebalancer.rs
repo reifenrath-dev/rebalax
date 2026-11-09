@@ -266,6 +266,22 @@ pub fn Rebalancer() -> impl IntoView {
                 <button
                     class="btn btn-circle join-item"
                     on:click=move |_| {
+                        let portfolio_data = portfolios.get();
+                        let selected_portfolio = portfolio_data.selected_portfolio;
+                        let fallback_portfolio = portfolio_data.fallback_portfolio();
+                        set_portfolios
+                            .update(|portfolios_data_store| {
+                                portfolios_data_store.remove_portfolio(selected_portfolio);
+                                portfolios_data_store.selected_portfolio = fallback_portfolio;
+                            })
+                    }
+                    disabled=move || { portfolios.get().portfolios.len() == 1 }
+                >
+                    <DeleteIcon />
+                </button>
+                <button
+                    class="btn btn-circle join-item"
+                    on:click=move |_| {
                         set_portfolios
                             .update(|portfolios_data_store| {
                                 let id = Uuid::now_v7();
