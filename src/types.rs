@@ -106,6 +106,20 @@ impl PortfoliosDataStore {
     pub fn add_portfolio(&mut self, id: Uuid, portfolio: Portfolio) {
         self.portfolios.insert(id, portfolio);
     }
+    pub fn next_or_selected_portfolio(&self) -> Uuid {
+        self.portfolios
+            .range(self.selected_portfolio..)
+            .nth(1)
+            .map(|(&k, _)| k)
+            .unwrap_or(self.selected_portfolio)
+    }
+    pub fn previous_or_selected_portfolio(&self) -> Uuid {
+        self.portfolios
+            .range(..self.selected_portfolio)
+            .next_back()
+            .map(|(&k, _)| k)
+            .unwrap_or(self.selected_portfolio)
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]

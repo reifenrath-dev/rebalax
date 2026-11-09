@@ -234,12 +234,7 @@ pub fn Rebalancer() -> impl IntoView {
                     on:click=move |_| {
                         let portfolio_data = portfolios.get();
                         let selected_portfolio = portfolio_data.selected_portfolio;
-                        let previous_portfolio = portfolio_data
-                            .portfolios
-                            .range(..selected_portfolio)
-                            .next_back()
-                            .map(|(&k, _)| k)
-                            .unwrap_or(selected_portfolio);
+                        let previous_portfolio = portfolio_data.previous_or_selected_portfolio();
                         if selected_portfolio != previous_portfolio {
                             set_portfolios
                                 .update(|portfolios_data_store| {
@@ -293,12 +288,7 @@ pub fn Rebalancer() -> impl IntoView {
                     on:click=move |_| {
                         let portfolio_data = portfolios.get();
                         let selected_portfolio = portfolio_data.selected_portfolio;
-                        let next_portfolio = portfolio_data
-                            .portfolios
-                            .range(selected_portfolio..)
-                            .nth(1)
-                            .map(|(&k, _)| k)
-                            .unwrap_or(selected_portfolio);
+                        let next_portfolio = portfolio_data.next_or_selected_portfolio();
                         if next_portfolio != selected_portfolio {
                             set_portfolios
                                 .update(|portfolios_data_store| {
