@@ -8,7 +8,7 @@ include!(concat!(env!("OUT_DIR"), "/i18n/mod.rs"));
 
 use app::*;
 use leptos::prelude::*;
-use leptos_use::docs::demo_or_body;
+use leptos_use_docs::demo_or_body;
 
 fn main() {
     _ = console_log::init_with_level(log::Level::Debug);

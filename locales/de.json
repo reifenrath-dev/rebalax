@@ -1,17 +1,18 @@
 {
   "strategy": "Strategie",
-  "click_to_change_lang": "switch to english",
   "alt_buy_sell": "Umschichten",
   "alt_buy": "Nachkaufen",
   "alt_sell": "Verkaufen",
-  "buy_sell": "+/-",
-  "buy": "+",
-  "sell": "-",
   "current": "Aktuell",
   "target": "Ziel",
   "total": "Summe",
   "donate": "Spenden",
   "source_code": "Quellcode",
   "language": "Sprache",
-  "privacy": "Datenschutzerklärung"
+  "privacy": "Datenschutzerklärung",
+  "portfolio_placeholder": "Portfolioname",
+  "asset_placeholder": "Postenname",
+  "industry_markets": "Industriemärkte",
+  "emerging_markets": "Schwellenmärkte",
+  "initial_portfolio": "Mein erstes Portfolio"
 }

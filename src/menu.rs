@@ -1,4 +1,5 @@
-use crate::components::*;
+use crate::components::icons::{DonateIcon, GithubIcon, LanguageIcon, PrivacyIcon};
+use crate::components::{SwitchMenuButton, TitleBar};
 use crate::i18n::{t, use_i18n, Locale};
 use leptos::prelude::*;
 
@@ -13,7 +14,7 @@ pub fn Menu() -> impl IntoView {
                     <SwitchMenuButton />
                 </div>
             </TitleBar>
-            <div class="pt-[100px] flex flex-col gap-4">
+            <div class="flex flex-col gap-4 pt-[100px]">
                 <MenuItem href="https://github.com/reifenrath-dev/rebalax">
                     <GithubIcon />
                     {t!(i18n, source_code)}
@@ -35,7 +36,7 @@ pub fn Menu() -> impl IntoView {
 #[component]
 pub fn MenuItem(href: &'static str, children: Children) -> impl IntoView {
     view! {
-        <a class="btn justify-start" href=href target="_blank" rel="external">
+        <a class="justify-start btn" href=href target="_blank" rel="external">
             {children()}
         </a>
     }
@@ -70,7 +71,7 @@ pub fn LanguageOption(locale: Locale, alt: String) -> impl IntoView {
             </label>
             <input
                 type="radio"
-                class="radio border-2"
+                class="border-2 radio"
                 name="language"
                 id=format!("language-{}", locale_string)
                 value=locale_string

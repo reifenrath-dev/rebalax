@@ -1,9 +1,5 @@
-use crate::i18n::*;
-use crate::types::StrategyState;
-use leptos::ev::MouseEvent;
+use crate::types::strategy_state::StrategyState;
 use leptos::prelude::*;
-use leptos_router::hooks::use_location;
-use rust_decimal::Decimal;
 
 #[component]
 pub fn MenuIcon() -> impl IntoView {
@@ -227,81 +223,42 @@ pub fn LanguageIcon() -> impl IntoView {
 }
 
 #[component]
-pub fn DiffString(diff: Decimal, has_braces: bool) -> impl IntoView {
-    if diff.is_zero() {
-        view! { <span class="zero">{"".to_string()}</span> }
-    } else if diff.is_sign_positive() {
-        let fmt = if has_braces {
-            format!(" (+{})", diff)
-        } else {
-            format!(" +{}", diff)
-        };
-        view! { <span class="text-success">{fmt}</span> }
-    } else {
-        let fmt = if has_braces {
-            format!(" ({})", diff)
-        } else {
-            format!(" {}", diff)
-        };
-        view! { <span class="text-error">{fmt}</span> }
+pub fn PreviousIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-left preview-icon"
+        >
+            <path d="m15 18-6-6 6-6" />
+        </svg>
     }
 }
 
 #[component]
-pub fn StrategyButton(
-    strategy: StrategyState,
-    active: bool,
-    on_click: impl FnMut(MouseEvent) + 'static,
-) -> impl IntoView {
-    let i18n = use_i18n();
-    let value = match strategy {
-        StrategyState::Buy => t!(i18n, alt_buy).into_any(),
-        StrategyState::Reallocate => t!(i18n, alt_buy_sell).into_any(),
-        StrategyState::Sell => t!(i18n, alt_sell).into_any(),
-    };
-
-    if active {
-        view! {
-            <button disabled class="btn bg-base-100 rounded-full">
-                {value}
-                <StrategyIcon strategy=strategy />
-            </button>
-        }
-        .into_any()
-    } else {
-        view! {
-            <button class="btn rounded-full" on:click=on_click>
-                {value}
-                <StrategyIcon strategy=strategy />
-            </button>
-        }
-        .into_any()
-    }
-}
-
-#[component]
-pub fn TitleBar(children: Children) -> impl IntoView {
-    view! { <div class="fixed w-full ml-[-20px] p-[20px] z-100">{children()}</div> }
-}
-
-#[component]
-pub fn SwitchMenuButton() -> impl IntoView {
-    move || {
-        if use_location().pathname.get().contains("menu") {
-            view! {
-                <a href="/" class="btn rounded-full">
-                    <CloseIcon />
-                </a>
-            }
-            .into_any()
-        } else {
-            view! {
-                <a href="/menu" class="btn rounded-full">
-                    <MenuIcon />
-                </a>
-            }
-            .into_any()
-        }
+pub fn NextIcon() -> impl IntoView {
+    view! {
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-chevron-right preview-icon"
+        >
+            <path d="m9 18 6-6-6-6" />
+        </svg>
     }
 }
 

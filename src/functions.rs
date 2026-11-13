@@ -1,6 +1,8 @@
-use crate::types::{PositionsDataStore, StrategyState, TargetPosition};
+use crate::types::portfolio::Portfolio;
+use crate::types::strategy_state::StrategyState;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -36,25 +38,18 @@ struct UnbalancedAsset {
 /// # Notes
 /// The function uses decimal arithmetic for precise financial calculations and handles
 /// edge cases where target allocations might be zero to avoid division by zero errors.
-pub fn get_target_assets(
-    strategy: StrategyState,
-    positions_store: PositionsDataStore,
-) -> Vec<TargetPosition> {
-    if !positions_store.is_valid_target_allocation() || !positions_store.all_positions_above_zero()
-    {
-        positions_store
-            .rows
+pub fn get_target_assets(strategy: StrategyState, portfolio: &Portfolio) -> HashMap<Uuid, Decimal> {
+    if !portfolio.is_valid_target_allocation() || !portfolio.all_positions_above_zero() {
+        portfolio
+            .positions
             .iter()
-            .map(|x| TargetPosition {
-                id: x.id,
-                value: x.current_position,
-            })
+            .map(|(id, position)| (*id, position.current_position))
             .collect()
     } else {
-        let position_total: Decimal = positions_store
-            .rows
-            .iter()
-            .map(|x| x.current_position)
+        let position_total: Decimal = portfolio
+            .positions
+            .values()
+            .map(|position| position.current_position)
             .sum();
 
         match strategy {
@@ -62,14 +57,14 @@ pub fn get_target_assets(
                 let is_buy = z == StrategyState::Buy;
                 let polarity = if is_buy { dec!(-1) } else { dec!(1) };
 
-                let assets: Vec<UnbalancedAsset> = positions_store
-                    .rows
+                let assets: Vec<UnbalancedAsset> = portfolio
+                    .positions
                     .iter()
-                    .map(|x| UnbalancedAsset {
-                        id: x.id,
-                        allocation: x.current_position / position_total,
-                        target_allocation: x.target_allocation,
-                        position: x.current_position,
+                    .map(|(id, position)| UnbalancedAsset {
+                        id: *id,
+                        allocation: position.current_position / position_total,
+                        target_allocation: position.target_allocation,
+                        position: position.current_position,
                     })
                     .collect();
 
@@ -87,19 +82,13 @@ pub fn get_target_assets(
 
                 assets
                     .iter()
-                    .map(|asset| TargetPosition {
-                        id: asset.id,
-                        value: asset.target_allocation * factor,
-                    })
+                    .map(|asset| (asset.id, asset.target_allocation * factor))
                     .collect()
             }
-            StrategyState::Reallocate => positions_store
-                .rows
+            StrategyState::Reallocate => portfolio
+                .positions
                 .iter()
-                .map(|position| TargetPosition {
-                    id: position.id,
-                    value: position.target_allocation * position_total,
-                })
+                .map(|(id, position)| (*id, position.target_allocation * position_total))
                 .collect(),
         }
     }
@@ -108,7 +97,8 @@ pub fn get_target_assets(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{PositionInputState, PositionsDataStore, StrategyState};
+    use crate::types::position::Position;
+    use std::collections::BTreeMap;
 
     #[test]
     fn get_target_assets_negative_position_mirrors_input() {
@@ -116,42 +106,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(-300),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(0.1),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(-300),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(0.1),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Buy, positions_store);
+        let result = get_target_assets(StrategyState::Buy, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(-300));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(300));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(200));
+        assert_eq!(result[&first_id], dec!(-300));
+        assert_eq!(result[&second_id], dec!(300));
+        assert_eq!(result[&third_id], dec!(200));
     }
 
     #[test]
@@ -160,42 +152,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(0),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(0.1),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(0),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(0.1),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Buy, positions_store);
+        let result = get_target_assets(StrategyState::Buy, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(0));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(300));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(200));
+        assert_eq!(result[&first_id], dec!(0));
+        assert_eq!(result[&second_id], dec!(300));
+        assert_eq!(result[&third_id], dec!(200));
     }
 
     #[test]
@@ -204,42 +198,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(1.4),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.6),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(-1),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(1.4),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.6),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(-1),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Buy, positions_store);
+        let result = get_target_assets(StrategyState::Buy, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(300));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(300));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(200));
+        assert_eq!(result[&first_id], dec!(300));
+        assert_eq!(result[&second_id], dec!(300));
+        assert_eq!(result[&third_id], dec!(200));
     }
 
     #[test]
@@ -248,42 +244,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(0),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(0),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Buy, positions_store);
+        let result = get_target_assets(StrategyState::Buy, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(300));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(300));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(200));
+        assert_eq!(result[&first_id], dec!(300));
+        assert_eq!(result[&second_id], dec!(300));
+        assert_eq!(result[&third_id], dec!(200));
     }
 
     #[test]
@@ -292,42 +290,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(0.2),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Buy, positions_store);
+        let result = get_target_assets(StrategyState::Buy, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(300));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(300));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(200));
+        assert_eq!(result[&first_id], dec!(300));
+        assert_eq!(result[&second_id], dec!(300));
+        assert_eq!(result[&third_id], dec!(200));
     }
 
     #[test]
@@ -336,42 +336,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(0.1),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(0.1),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Buy, positions_store);
+        let result = get_target_assets(StrategyState::Buy, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(1400));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(400));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(200));
+        assert_eq!(result[&first_id], dec!(1400));
+        assert_eq!(result[&second_id], dec!(400));
+        assert_eq!(result[&third_id], dec!(200));
     }
 
     #[test]
@@ -380,42 +382,44 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(700),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.1),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(700),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.1),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Sell, positions_store);
+        let result = get_target_assets(StrategyState::Sell, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(700));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(200));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(100));
+        assert_eq!(result[&first_id], dec!(700));
+        assert_eq!(result[&second_id], dec!(200));
+        assert_eq!(result[&third_id], dec!(100));
     }
 
     #[test]
@@ -424,41 +428,43 @@ mod tests {
         let first_id = Uuid::new_v4();
         let second_id = Uuid::new_v4();
         let third_id = Uuid::new_v4();
-        let positions_store = PositionsDataStore {
-            id: Uuid::now_v7(),
+        let positions_store = Portfolio {
             name: "Portfolio 1".to_string(),
-            rows: vec![
-                PositionInputState {
-                    id: first_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.7),
-                },
-                PositionInputState {
-                    id: second_id,
-                    name: "".to_string(),
-                    current_position: dec!(300),
-                    target_allocation: dec!(0.2),
-                },
-                PositionInputState {
-                    id: third_id,
-                    name: "".to_string(),
-                    current_position: dec!(200),
-                    target_allocation: dec!(0.1),
-                },
-            ],
+            positions: BTreeMap::from([
+                (
+                    first_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.7),
+                    },
+                ),
+                (
+                    second_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(300),
+                        target_allocation: dec!(0.2),
+                    },
+                ),
+                (
+                    third_id,
+                    Position {
+                        name: "".to_string(),
+                        current_position: dec!(200),
+                        target_allocation: dec!(0.1),
+                    },
+                ),
+            ]),
         };
 
         // Act
-        let result = get_target_assets(StrategyState::Reallocate, positions_store);
+        let result = get_target_assets(StrategyState::Reallocate, &positions_store);
 
         // Assert
         assert_eq!(result.len(), 3);
-        assert_eq!(result[0].id, first_id);
-        assert_eq!(result[0].value, dec!(560));
-        assert_eq!(result[1].id, second_id);
-        assert_eq!(result[1].value, dec!(160));
-        assert_eq!(result[2].id, third_id);
-        assert_eq!(result[2].value, dec!(80));
+        assert_eq!(result[&first_id], dec!(560));
+        assert_eq!(result[&second_id], dec!(160));
+        assert_eq!(result[&third_id], dec!(80));
     }
 }
