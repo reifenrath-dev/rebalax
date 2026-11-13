@@ -51,8 +51,8 @@ pub fn get_target_assets(
     } else {
         let position_total: Decimal = positions_store
             .positions
-            .iter()
-            .map(|(_, position)| position.current_position)
+            .values()
+            .map(|position| position.current_position)
             .sum();
 
         match strategy {

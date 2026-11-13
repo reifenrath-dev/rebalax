@@ -1,17 +1,18 @@
 {
   "strategy": "Strategy",
-  "click_to_change_lang": "Auf deutsch wechseln",
   "alt_buy_sell": "Reallocate",
   "alt_buy": "Buy",
   "alt_sell": "Sell",
-  "buy_sell": "+/-",
-  "buy": "+",
-  "sell": "-",
   "current": "Current",
   "target": "Target",
   "total": "Total",
   "donate": "Donate",
   "source_code": "Source Code",
   "language": "Language",
-  "privacy": "Privacy Policy"
+  "privacy": "Privacy Policy",
+  "portfolio_placeholder": "Portfolio Name",
+  "asset_placeholder": "Asset Name",
+  "industry_markets": "Industry Markets",
+  "emerging_markets": "Emerging Markets",
+  "initial_portfolio": "My First Portfolio"
 }

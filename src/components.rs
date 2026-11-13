@@ -1,9 +1,12 @@
 use crate::i18n::*;
-use crate::types::StrategyState;
+use crate::types::{DecimalExtensions, EventExtensions, PortfoliosDataStore, StrategyState};
 use leptos::ev::MouseEvent;
 use leptos::prelude::*;
 use leptos_router::hooks::use_location;
 use rust_decimal::Decimal;
+use rust_decimal_macros::dec;
+use strum::IntoEnumIterator;
+use uuid::Uuid;
 
 #[component]
 pub fn MenuIcon() -> impl IntoView {
@@ -418,4 +421,139 @@ pub fn SellIcon() -> impl IntoView {
             <path d="M8 12h8" />
         </svg>
     }
+}
+
+#[component]
+pub fn StrategySelector(
+    strategy: Signal<StrategyState>,
+    set_strategy: WriteSignal<StrategyState>,
+) -> impl IntoView {
+    let i18n = use_i18n();
+
+    view! {
+        <div class="fab">
+            <div tabindex="0" role="button" class="flex rounded-full btn btn-lg">
+                {t!(i18n, strategy)}
+                :
+                {move || view! { <StrategyIcon strategy=strategy.get() /> }}
+            </div>
+            {StrategyState::iter()
+                .map(|stra| {
+                    move || {
+                        let active = strategy.get() == stra;
+                        view! {
+                            <StrategyButton
+                                strategy=stra
+                                active
+                                on_click=move |_| set_strategy.set(stra)
+                            />
+                        }
+                    }
+                })
+                .collect_view()}
+        </div>
+    }
+}
+
+#[component]
+pub fn TargetAllocationInput(
+    position_id: Uuid,
+    target_allocation: Decimal,
+    set_portfolios: WriteSignal<PortfoliosDataStore>,
+) -> impl IntoView {
+    view! {
+        <label class="text-right input">
+            <input
+                id=format!("{}-target-input", position_id)
+                min="0.01"
+                max="100"
+                placeholder="..."
+                type="number"
+                class="text-right grow"
+                value=if target_allocation.is_zero() {
+                    "".to_string()
+                } else {
+                    target_allocation.to_percentage().to_string()
+                }
+                on:input=move |ev| {
+                    set_portfolios
+                        .update(|portfolios_data_store| {
+                            portfolios_data_store
+                                .set_position_target_allocation(
+                                    &position_id,
+                                    event_target_value(&ev).parse().unwrap_or(dec!(0)) / dec!(100),
+                                )
+                        })
+                }
+            />
+            <span class="ml-[-4px]">%</span>
+        </label>
+    }
+}
+
+#[component]
+pub fn CurrentPositionInput(
+    position_id: Uuid,
+    current_position: Decimal,
+    set_portfolios: WriteSignal<PortfoliosDataStore>,
+) -> impl IntoView {
+    view! {
+        <input
+            class="text-right input"
+            id=format!("{}-position-input", position_id)
+            min="0"
+            max="9999999"
+            placeholder="..."
+            type="number"
+            value=if current_position.is_zero() {
+                "".to_string()
+            } else {
+                current_position.round_dp(0).to_string()
+            }
+            on:input=move |ev| {
+                set_portfolios
+                    .update(|portfolios_data_store| {
+                        portfolios_data_store
+                            .set_position_current_value(&position_id, ev.to_decimal_or_zero())
+                    })
+            }
+        />
+    }
+}
+
+#[component]
+pub fn AddPositionButton(set_portfolios: WriteSignal<PortfoliosDataStore>) -> impl IntoView {
+    view! {
+        <button
+            class="w-full rounded-b-lg btn"
+            on:click=move |_| {
+                set_portfolios
+                    .update(|portfolios_data_store| {
+                        portfolios_data_store.add_position(Default::default())
+                    })
+            }
+        >
+            <PlusIcon />
+        </button>
+    }
+}
+
+#[component]
+pub fn PositionRow(children: Children) -> impl IntoView {
+    view! { <div class="flex items-center h-[3rem]">{children()}</div> }
+}
+
+#[component]
+pub fn RowLabel(children: Children) -> impl IntoView {
+    view! { <div class="grow px-[12px]">{children()}</div> }
+}
+
+#[component]
+pub fn DisplayCell(children: Children) -> impl IntoView {
+    view! { <div class="flex-none w-[150px] px-[12px]">{children()}</div> }
+}
+
+#[component]
+pub fn InputCell(children: Children) -> impl IntoView {
+    view! { <div class="flex-none w-[150px]">{children()}</div> }
 }

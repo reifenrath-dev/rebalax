@@ -1,9 +1,12 @@
-use std::collections::BTreeMap;
-
+use crate::i18n::use_i18n;
+use leptos::ev::Event;
+use leptos::prelude::event_target_value;
+use leptos_i18n::__private::macros_reexport::t_string;
 use reactive_stores::Store;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use strum_macros::{Display, EnumIter, EnumString};
 use uuid::Uuid;
 
@@ -13,7 +16,7 @@ pub struct PortfoliosDataStore {
     pub portfolios: BTreeMap<Uuid, Portfolio>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Portfolio {
     pub name: String,
     pub positions: BTreeMap<Uuid, Position>,
@@ -21,18 +24,19 @@ pub struct Portfolio {
 
 impl Default for PortfoliosDataStore {
     fn default() -> Self {
+        let i18n = use_i18n();
         let id = Uuid::now_v7();
         Self {
             selected_portfolio: id,
             portfolios: BTreeMap::from([(
                 id,
                 Portfolio {
-                    name: "My First Portfolio".to_string(),
+                    name: t_string!(i18n, initial_portfolio).to_string(),
                     positions: BTreeMap::from([
                         (
                             Uuid::now_v7(),
                             Position {
-                                name: "Position 1".to_string(),
+                                name: t_string!(i18n, industry_markets).to_string(),
                                 current_position: dec!(0),
                                 target_allocation: dec!(0.70),
                             },
@@ -40,7 +44,7 @@ impl Default for PortfoliosDataStore {
                         (
                             Uuid::now_v7(),
                             Position {
-                                name: "Position 2".to_string(),
+                                name: t_string!(i18n, emerging_markets).to_string(),
                                 current_position: dec!(0),
                                 target_allocation: dec!(0.30),
                             },
@@ -132,7 +136,7 @@ impl PortfoliosDataStore {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Default)]
 pub struct Position {
     pub name: String,
     pub current_position: Decimal,
@@ -142,8 +146,8 @@ pub struct Position {
 impl Portfolio {
     pub fn is_valid_target_allocation(&self) -> bool {
         self.positions
-            .iter()
-            .map(|(_, x)| x.target_allocation)
+            .values()
+            .map(|x| x.target_allocation)
             .sum::<Decimal>()
             == dec!(1)
             && !self
@@ -176,6 +180,32 @@ impl Portfolio {
     }
 }
 
+impl Default for Portfolio {
+    fn default() -> Self {
+        Self {
+            name: "".to_string(),
+            positions: BTreeMap::from([(Uuid::now_v7(), Default::default())]),
+        }
+    }
+}
+
+pub trait DecimalExtensions {
+    fn to_percentage(self) -> Decimal;
+}
+impl DecimalExtensions for Decimal {
+    fn to_percentage(self) -> Decimal {
+        (self * dec!(100)).round_dp(2)
+    }
+}
+pub trait EventExtensions {
+    fn to_decimal_or_zero(self) -> Decimal;
+}
+impl EventExtensions for Event {
+    fn to_decimal_or_zero(self) -> Decimal {
+        event_target_value(&self).parse().unwrap_or(dec!(0))
+    }
+}
+
 #[derive(
     Serialize,
     Deserialize,
@@ -198,12 +228,6 @@ pub enum StrategyState {
     Reallocate,
     /// Readjust portfolio allocation only by selling funds
     Sell,
-}
-
-#[derive(Clone)]
-pub struct TargetPosition {
-    pub id: Uuid,
-    pub value: Decimal,
 }
 
 #[cfg(test)]
