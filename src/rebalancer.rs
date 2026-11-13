@@ -7,7 +7,7 @@ use crate::types::portfolios_data_store::PortfoliosDataStore;
 use crate::types::strategy_state::StrategyState;
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
-use leptos_use::storage::use_local_storage;
+use leptos_use_storage::use_local_storage;
 use rust_decimal_macros::dec;
 use uuid::Uuid;
 
