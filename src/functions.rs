@@ -1,4 +1,5 @@
-use crate::types::{Portfolio, StrategyState};
+use crate::types::portfolio::Portfolio;
+use crate::types::strategy_state::StrategyState;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use std::collections::HashMap;
@@ -37,19 +38,15 @@ struct UnbalancedAsset {
 /// # Notes
 /// The function uses decimal arithmetic for precise financial calculations and handles
 /// edge cases where target allocations might be zero to avoid division by zero errors.
-pub fn get_target_assets(
-    strategy: StrategyState,
-    positions_store: &Portfolio,
-) -> HashMap<Uuid, Decimal> {
-    if !positions_store.is_valid_target_allocation() || !positions_store.all_positions_above_zero()
-    {
-        positions_store
+pub fn get_target_assets(strategy: StrategyState, portfolio: &Portfolio) -> HashMap<Uuid, Decimal> {
+    if !portfolio.is_valid_target_allocation() || !portfolio.all_positions_above_zero() {
+        portfolio
             .positions
             .iter()
             .map(|(id, position)| (*id, position.current_position))
             .collect()
     } else {
-        let position_total: Decimal = positions_store
+        let position_total: Decimal = portfolio
             .positions
             .values()
             .map(|position| position.current_position)
@@ -60,7 +57,7 @@ pub fn get_target_assets(
                 let is_buy = z == StrategyState::Buy;
                 let polarity = if is_buy { dec!(-1) } else { dec!(1) };
 
-                let assets: Vec<UnbalancedAsset> = positions_store
+                let assets: Vec<UnbalancedAsset> = portfolio
                     .positions
                     .iter()
                     .map(|(id, position)| UnbalancedAsset {
@@ -88,7 +85,7 @@ pub fn get_target_assets(
                     .map(|asset| (asset.id, asset.target_allocation * factor))
                     .collect()
             }
-            StrategyState::Reallocate => positions_store
+            StrategyState::Reallocate => portfolio
                 .positions
                 .iter()
                 .map(|(id, position)| (*id, position.target_allocation * position_total))
@@ -100,7 +97,7 @@ pub fn get_target_assets(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{Portfolio, Position, StrategyState};
+    use crate::types::position::Position;
     use std::collections::BTreeMap;
 
     #[test]

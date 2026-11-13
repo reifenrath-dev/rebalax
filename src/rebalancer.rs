@@ -1,7 +1,10 @@
+use crate::components::icons::{DeleteIcon, NextIcon, PlusIcon, PreviousIcon};
 use crate::components::*;
 use crate::functions;
 use crate::i18n::*;
-use crate::types::{DecimalExtensions, PortfoliosDataStore, StrategyState};
+use crate::types::extensions::DecimalExtensions;
+use crate::types::portfolios_data_store::PortfoliosDataStore;
+use crate::types::strategy_state::StrategyState;
 use codee::string::JsonSerdeCodec;
 use leptos::prelude::*;
 use leptos_use::storage::use_local_storage;

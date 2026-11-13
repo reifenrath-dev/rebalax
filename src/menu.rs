@@ -1,4 +1,5 @@
-use crate::components::*;
+use crate::components::icons::{DonateIcon, GithubIcon, LanguageIcon, PrivacyIcon};
+use crate::components::{SwitchMenuButton, TitleBar};
 use crate::i18n::{t, use_i18n, Locale};
 use leptos::prelude::*;
 
